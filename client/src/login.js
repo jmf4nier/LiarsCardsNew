@@ -1,7 +1,7 @@
 import React from 'react'
-import socketIO from 'socket.io-client'
+// import socketIO from 'socket.io-client'
 
-const io = socketIO('http://localhost:8080')
+// const io = socketIO('http://localhost:8080')
 
 export class Login extends React.Component{
 
@@ -9,6 +9,7 @@ export class Login extends React.Component{
         return(
             <div>
                 <h1>Log In First BIIIITCH</h1>
+
             </div>
         )
     }
