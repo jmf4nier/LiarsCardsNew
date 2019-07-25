@@ -50,20 +50,25 @@ const { User, Message } = require("./models")
 // turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
 io.on('connection', socket =>{
 
-    socket.on('messages/index',({},respond)=> {
-        Message.findAll({})
-        .then(messages => respond(messages))
-    })
-
-    socket.on('sentMessage',(messageObject,respond)=> {
-        Message.create(messageObject)
-        .then(newMessage => {
+    User.findByPk(Math.floor(Math.random()*3)+1).then( currentUser => {
+        socket.on('messages/index',({},respond)=> {
+            Message.findAll({})
+            .then(messages => respond(messages))
+        })
+    
+        socket.on('sentMessage',async (messageObject,respond)=> {
+            let newMessage = await Message.create({...messageObject,userName: currentUser.userName})
+            await newMessage.setUser( currentUser )
             socket.broadcast.emit('newMessage', newMessage)
             respond(newMessage)
+        
         })
+    
+        socket.emit('startingHand', Math.random())
     })
 
-    socket.emit('startingHand', Math.random())
+
+   
 
     // make listener for a round starting to distribute the cards
 

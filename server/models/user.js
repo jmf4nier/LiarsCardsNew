@@ -5,9 +5,6 @@ const sqlDatabase = require('../database')
 const User = sqlDatabase.define( 'user', {
     userName: {
         type: Sequelize.STRING
-    },
-    password: {
-        type: Sequelize.STRING
     }
 })
 
