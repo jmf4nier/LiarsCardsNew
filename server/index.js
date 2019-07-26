@@ -50,6 +50,8 @@ const { User, Message } = require("./models")
 // turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
 io.on('connection', socket =>{
 
+    //find a way to limit number of users connected to the socket
+
     User.findByPk(Math.floor(Math.random()*3)+1).then( currentUser => {
         socket.on('messages/index',({},respond)=> {
             Message.findAll({})
@@ -59,7 +61,7 @@ io.on('connection', socket =>{
         socket.on('sentMessage',async (messageObject,respond)=> {
             let newMessage = await Message.create({...messageObject,userName: currentUser.userName})
             await newMessage.setUser( currentUser )
-            socket.broadcast.emit('newMessage', newMessage)
+            io.emit('newMessage', newMessage)
             respond(newMessage)
         
         })

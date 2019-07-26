@@ -8,7 +8,7 @@ export class Login extends React.Component{
     render(){
         return(
             <div>
-                <h1>Log In First BIIIITCH</h1>
+                <h1>Log In First....plez</h1>
 
             </div>
         )

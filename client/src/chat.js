@@ -13,7 +13,7 @@ export class Chat extends React.Component{
     render(){
         return (
             <div>
-            {this.state.messages.map( (eachMessage) => <p key={eachMessage.id} >{eachMessage.message}</p> )}
+            {this.state.messages.map( (eachMessage) => <p key={eachMessage.id} >{eachMessage.userName}: {eachMessage.message}</p> )}
             <form onSubmit={(e)=> this.handleSubmit(e)}>
                 <input name="newMessage" type="text" value={this.state.newMessage} onChange={(e)=>this.setState({ newMessage: e.target.value })} />
                 <input type="Submit" />
@@ -23,6 +23,10 @@ export class Chat extends React.Component{
     }
 
     componentDidMount(){
+
+        io.on('goAway', message =>{
+            console.log(message)
+        })
 
         io.emit('messages/index',{}, messages=>{
             console.log(messages)
@@ -42,12 +46,14 @@ export class Chat extends React.Component{
         e.preventDefault()
 
         if(this.state.newMessage.split(" ").join("").length > 0){
-            io.emit('sentMessage',{message: this.state.newMessage}, newMessage =>{
-                this.setState({
-                    messages: [...this.state.messages, newMessage],
-                    newMessage: ""
-                })
-            })
+            io.emit('sentMessage',{message: this.state.newMessage})
+            
+            // , newMessage =>{
+            //     this.setState({
+            //         messages: [...this.state.messages, newMessage],
+            //         newMessage: ""
+            //     })
+            // })
         }
     }
 
