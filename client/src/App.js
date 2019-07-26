@@ -1,5 +1,6 @@
 import React from 'react';
-import { Login } from './login';
+import { Login } from './Login';
+import { Chat } from './Chat';
 
 
 class App extends React.Component{
@@ -8,6 +9,7 @@ class App extends React.Component{
     return (
       <div>
         <Login />
+        <Chat />
       </div>
     )
   }

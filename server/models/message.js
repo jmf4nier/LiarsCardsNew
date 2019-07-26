@@ -5,8 +5,8 @@ const Message = sqlDatabase.define( 'message', {
     message: {
         type: Sequelize.STRING
     },
-    userId: {
-        type: Sequelize.INTEGER
+    userName: {
+        type: Sequelize.STRING
     }
 })
 

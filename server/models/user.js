@@ -8,6 +8,9 @@ const User = sqlDatabase.define( 'user', {
     },
     password: {
         type: Sequelize.STRING
+    },
+    wins: {
+        type: Sequelize.INTEGER
     }
 })
 

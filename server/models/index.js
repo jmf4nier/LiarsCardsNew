@@ -3,15 +3,17 @@ const User = require('./user.js')
 const Message = require('./message.js')
 
 User.hasMany(Message)
+Message.belongsTo(User)
 
 sqlDatabase.drop()
 .then( () =>{
     sqlDatabase.sync()
-    .then( ()=>{
-        User.create({ userName: "bot" , password: "123"})
+    .then( async ()=>{
+        let bot = await User.create({ userName: "bot" , password: "123"})
         User.create({ userName: "roysan" , password: "123"})
         User.create({ userName: "jason" , password: "123"})
-        Message.create({message: "Welcome to the Chat!", userId: 1})
+        let message = await Message.create({message: "Welcome to the Chat!", userName: bot.userName})
+        message.setUser(bot)
     })
 })
 
