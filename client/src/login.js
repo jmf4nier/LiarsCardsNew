@@ -9,7 +9,11 @@ export class Login extends React.Component{
         return(
             <div>
                 <h1>Log In First....plez</h1>
-
+                <form>
+                    <input type="text" placeholder="Username" />
+                    <br /><br />
+                    <input type="password" placeholder="Password" />
+                </form>
             </div>
         )
     }

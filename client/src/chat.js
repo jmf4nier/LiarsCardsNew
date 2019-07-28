@@ -47,6 +47,7 @@ export class Chat extends React.Component{
 
         if(this.state.newMessage.split(" ").join("").length > 0){
             io.emit('sentMessage',{message: this.state.newMessage})
+            this.setState({ newMessage: "" })
             
             // , newMessage =>{
             //     this.setState({

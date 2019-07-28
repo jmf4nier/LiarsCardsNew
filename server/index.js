@@ -29,63 +29,77 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true}))
 
 ////////////////
 
+// used for password shiiiiit
+const bcrypt = require('bcrypt')
+
 
 // our database models
 const { User, Message } = require("./models")
 
-//index using http if we used fetch requests
-// app.get('/messages', ({}, respond) =>{
-//     Message.findAll({})
-//     .then( messages => respond.send(messages))
-// })
+app.post('/login', async (request,respond) =>{
+    const {username, password } = request.body
+    let user = await User.findOne({ where: {userName: username} })
+    if(user && bcrypt.compareSync(password,user.password_digest)){
+        respond.send(user)
+    }else{
+        respond.send("NO!")
+    }
+})
 
-//post using http
-// app.post('/messages', (request, {}) => {
-//     Message.create(request.body)
-//     //uses socket to have new messages be received by all sockets in realtime
-//     .then(result => io.emit('newMessage', result))
-// })
+const room = io.of('/cool-kids')
+room.on('connection', socket => console.log("Just connected to cool kids room"))
 
+// const userArray = []
 
-// turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
-io.on('connection', socket =>{
+// // turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
+// io.on('connection', socket =>{
 
-    //find a way to limit number of users connected to the socket
+//     //find a way to limit number of users connected to the socket
 
-    User.findByPk(Math.floor(Math.random()*3)+1).then( currentUser => {
-        socket.on('messages/index',({},respond)=> {
-            Message.findAll({})
-            .then(messages => respond(messages))
-        })
+//     User.findByPk(Math.floor(Math.random()*3)+1).then( currentUser => {
+//         console.log(currentUser.userName,"connected")
+//         userArray.push(currentUser.userName)
+//         console.log(userArray)
+//         socket.on('messages/index',({},respond)=> {
+//             Message.findAll({})
+//             .then(messages => respond(messages))
+//         })
     
-        socket.on('sentMessage',async (messageObject,respond)=> {
-            let newMessage = await Message.create({...messageObject,userName: currentUser.userName})
-            await newMessage.setUser( currentUser )
-            io.emit('newMessage', newMessage)
-            respond(newMessage)
+//         socket.on('sentMessage',async (messageObject,respond)=> {
+//             let newMessage = await Message.create({...messageObject,userName: currentUser.userName})
+//             await newMessage.setUser( currentUser )
+//             io.emit('newMessage', newMessage)
+//             respond(newMessage)
         
-        })
+//         })
     
-        socket.emit('startingHand', Math.random())
-    })
+//         socket.emit('startingHand', Math.random())
+
+//         socket.on('disconnect', ()=> {
+//             console.log(currentUser.userName,'disconnected')
+//             let num = userArray.indexOf(currentUser.userName)
+//             userArray.splice(num,1)
+//             console.log(userArray)
+//         })
+//     })
 
 
    
 
-    // make listener for a round starting to distribute the cards
+//     // make listener for a round starting to distribute the cards
 
-    // recieve data for final results of each round
+//     // recieve data for final results of each round
 
 
-    // something to use for creating game rooms that need a pin to get in
+//     // something to use for creating game rooms that need a pin to get in
 
-    // socket.on('pin', () => {
-    //     // look up the game
-    //     // get the cards for the game
-    //     socket.emit('cards',)
-    // })
+//     socket.on('pin', () => {
+//         // look up the game
+//         // get the cards for the game
+//         socket.emit('cards',)
+//     })
 
-})
+// })
 
 
 // assigns the port to listen to
