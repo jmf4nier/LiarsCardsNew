@@ -42,7 +42,6 @@ app.post('/login', async (req, response)=>{
             
             response.send('Success')
         }else{
-            
             response.send('nope')
         }
 })
@@ -161,7 +160,7 @@ io.on('connection', async socket =>{
         currentUsers.shift()
         room.emit('current-users', currentUsers)
         // make a specific user leave here
-
+    })
 })
 
 http.listen(8080)
