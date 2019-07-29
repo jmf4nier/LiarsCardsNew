@@ -5,7 +5,7 @@ const Message = sqlDatabase.define( 'message', {
     message: {
         type: Sequelize.STRING
     },
-    userName: {
+    username: {
         type: Sequelize.STRING
     }
 })

@@ -15,7 +15,7 @@ export class Chat extends React.Component{
     render(){
         return (
             <div>
-            {this.state.messages.map( (eachMessage) => <p key={eachMessage.id} >{eachMessage.userName}: {eachMessage.message}</p> )}
+            {this.state.messages.map( (eachMessage) => <p key={eachMessage.id} >{eachMessage.username}: {eachMessage.message}</p> )}
             <form onSubmit={(e)=> this.handleSubmit(e)}>
                 <input name="newMessage" type="text" value={this.state.newMessage} onChange={(e)=>this.setState({ newMessage: e.target.value })} />
                 <input type="Submit" />
