@@ -1,6 +1,6 @@
 
 //////////////////////// This section is pretty much the same for every socket app to make later
-
+const bcrypt = require ('bcrypt')
 //figure out which ones I don't need since I'm not using http
 
 //used to route http requests
@@ -21,6 +21,8 @@ const http = require('http').createServer(app);
 // used for realtime communication (created after http request (handshake) goes through)
 const io = require('socket.io')(http);
 
+const jwt = require ('jwt-simple')
+
 // tells app to use the bodyParser
 app.use(bodyParser.json())
 
@@ -40,12 +42,29 @@ const { User, Message } = require("./models")
 // })
 
 //post using http
-// app.post('/messages', (request, {}) => {
-//     Message.create(request.body)
-//     //uses socket to have new messages be received by all sockets in realtime
-//     .then(result => io.emit('newMessage', result))
+app.post('/messages', (request, {}) => {
+    Message.create(request.body)
+    //uses socket to have new messages be received by all sockets in realtime
+    .then(result => io.emit('newMessage', result))
+})
+// app.post('/login', async (req, res)=>{
+//     const {username, password} = req.body
+//     let user = await User.findOne({ where: { username: username} } )
+//     if(user && bcrypt.compareSync(password, user.password_digest)){
+//         res.send('Success')
+//     }else{
+//         res.send('nope')
+//     }
 // })
 
+// io.on('connection', async socket =>{
+//     let token = socket.handshake.query.token
+//     if (token){
+//         let { id } = jwt.decode(token, 'akdsjfljdfi3' )
+//         let user = await User.findByPk(id)
+//         console.log('connected as: ', user)
+//     }
+// })
 
 // turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
 io.on('connection', socket =>{

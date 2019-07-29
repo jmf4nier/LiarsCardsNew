@@ -1,7 +1,9 @@
 import React from 'react'
 import socketIO from 'socket.io-client'
-
 const io = socketIO('http://localhost:8080')
+// const io = socketIO('http://localhost:8080?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MX0.nl8QveWCtkui9auZTnQY4GKWBgW1fHdooy0lzuJqSG8')
+    
+
 
 export class Chat extends React.Component{
 
@@ -24,37 +26,33 @@ export class Chat extends React.Component{
 
     componentDidMount(){
 
-        io.on('goAway', message =>{
-            console.log(message)
-        })
-
-        io.emit('messages/index',{}, messages=>{
-            console.log(messages)
-            this.setState({ messages: messages })
-        })
-
         io.on('newMessage', newMessage =>{
             this.setState({ messages: [...this.state.messages, newMessage]})
         })
 
-        io.on('startingHand', startingHand =>{
-            console.log(startingHand)
-        })
-    }
-    
-    handleSubmit(e){
+    }    
+
+ handleSubmit(e){
         e.preventDefault()
 
         if(this.state.newMessage.split(" ").join("").length > 0){
             io.emit('sentMessage',{message: this.state.newMessage})
-            
-            // , newMessage =>{
-            //     this.setState({
-            //         messages: [...this.state.messages, newMessage],
-            //         newMessage: ""
-            //     })
-            // })
+           
         }
-    }
+    }       
+    
+   
 
 }
+
+
+    //         console.log(messages)
+    //         this.setState({ messages: messages })
+    //     })
+
+    //     io.on('startingHand', startingHand =>{
+    //         console.log(startingHand)
+    //     })
+    // }
+
+    
