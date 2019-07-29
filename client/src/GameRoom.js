@@ -1,5 +1,7 @@
 import React from 'react'
 import socketIO from 'socket.io-client'
+import {Chat} from './Chat'
+import 'semantic-ui-css/semantic.min.css';
 
 let io;
 
@@ -44,6 +46,7 @@ export class GameRoom extends React.Component{
                     <button onClick={this.confirmCall}>Confirm</button> :
                     null
                 }
+                <Chat/>
             </div>
         )
     }

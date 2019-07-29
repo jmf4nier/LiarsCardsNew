@@ -27,8 +27,8 @@ const jwt = require ('jwt-simple');
 app.use(bodyParser.json())
 
 // tells app to use cors
-app.use(cors({ origin: 'http://localhost:3000/game-room', credentials: true}))
-
+//app.use(cors({ origin: 'http://localhost:3000/game-room', credentials: true}))
+app.use(cors({ origin: 'http://localhost:3000', credentials: true}))
 
 
 
@@ -42,19 +42,23 @@ const bcrypt = require('bcrypt')
 // our database models
 const { User, Message } = require("./models")
 
-app.post('/login', async (req, response)=>{
-    
+app.post('/signup', async (req, response)=>{
     const {username, password} = req.body
     let user = await User.findOne({ where: { username: username} } )
     if(user === null){
-        let user = await User.create({username: username, password: password})
-    }
-    if(user && bcrypt.compareSync(password, user.password_digest)){
-        
-        response.send('Success')
+        let newUser = await User.create({username: username, password: password})
+        response.send(user.auth_token)
     }else{
-        
-        response.send('nope')
+        response.send('Username Not Available')
+    }
+})
+app.post('/login', async (req, response)=>{
+    const {username, password} = req.body
+    let user = await User.findOne({ where: { username: username} } )
+    if(user && bcrypt.compareSync(password, user.password_digest)){
+        response.send( user.auth_token)
+    }else{
+        response.send('Wrong Password/Username')
     }
 })
 
@@ -143,24 +147,24 @@ room.on('connection', socket => {
 // this stuff is for using users to login and chat
 
 io.on('connection', async socket =>{
-    // console.log(socket.handshake.query.token)
-    // let token = socket.handshake.query.token
-    // if (token){
-    //     let { id } = jwt.decode(token, 'akdsjfljdfi3' )
-    //     let user = await User.findByPk(id)
-    //     console.log('connected as: ', user)
-    // }
+    console.log(socket.handshake.query.token)
+    let token = socket.handshake.query.token
+    if (token){
+        let { id } = jwt.decode(token, 'akdsjfljdfi3' )
+        let user = await User.findByPk(id)
+        console.log('connected as: ', user)
+    }
     //find a way to limit number of users connected to the socket
 
     User.findByPk(Math.floor(Math.random()*3)+1).then( currentUser => {
-        console.log(currentUser.username)
+        
         socket.on('messages/index',({},respond)=> {
             Message.findAll({})
             .then(messages => respond(messages))
         })
     
         socket.on('sentMessage',async (messageObject,respond)=> {
-            console.log(messageObject)
+            
             let newMessage = await Message.create({...messageObject,username: currentUser.username})
             await newMessage.setUser( currentUser )
             io.emit('newMessage', newMessage)

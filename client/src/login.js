@@ -36,13 +36,15 @@ export default class Login extends React.Component{
             })
         })
         .then(rsp=>rsp.text())
-        .then(console.log)
+        .then(result => {
+            window.localStorage.setItem('token', result)
+        })
         .then(this.setState({
             password: '',
             username: ''
         }))
     }
-
+    
     render(){
         return(
             

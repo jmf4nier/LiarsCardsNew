@@ -5,7 +5,8 @@ import 'semantic-ui-css/semantic.min.css';
 export default class Signup extends React.Component{
     state={
         username: '',
-        password: ''
+        password: '',
+        complete: false
     }
 
     handleOnChange = (type, value)=>{
@@ -21,7 +22,8 @@ export default class Signup extends React.Component{
     }
     
     handleLogin = ()=>{
-        fetch('http://localhost:8080/login', {
+        this.setState({complete: !this.state.complete})
+        fetch('http://localhost:8080/signup', {
             method: 'POST',
             
             headers: {
@@ -46,23 +48,23 @@ export default class Signup extends React.Component{
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                 <Grid.Column style={{ maxWidth: 450 }}>
                     <Header as='h2' color='teal' textAlign='center'>
-                        Log-in to your account 
+                        Create your account 
                     </Header>
                     <Form size='large'>
                         <Segment stacked>
                         <Form.Input fluid icon='user' 
-                        iconPosition='left' 
-                        placeholder='Username' 
-                        type='text' 
-                        name='username' 
-                        onChange={e=>this.handleOnChange(e.target.name, e.target.value)}/>
+                            iconPosition='left' 
+                            placeholder='Username' 
+                            type='text' 
+                            name='username' 
+                            onChange={e=>this.handleOnChange(e.target.name, e.target.value)}/>
                         <Form.Input
-                        name='password'
-                        fluid icon='lock'
-                        iconPosition='left'
-                        placeholder='Password'
-                        type='password'
-                        onChange={e=>this.handleOnChange(e.target.name, e.target.value)}/>
+                            name='password'
+                            fluid icon='lock'
+                            iconPosition='left'
+                            placeholder='Password'
+                            type='password'
+                            onChange={e=>this.handleOnChange(e.target.name, e.target.value)}/>
 
                         <Button color='teal' fluid size='large' onClick={this.handleLogin}>
                             Submit

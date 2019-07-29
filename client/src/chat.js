@@ -13,19 +13,38 @@ export class Chat extends React.Component{
     }
       
     render(){
+        const today = new Date()
         return (
-            <div>
-            {this.state.messages.map( (eachMessage) => <p key={eachMessage.id} >{eachMessage.username}: {eachMessage.message}</p> )}
-            <form onSubmit={(e)=> this.handleSubmit(e)}>
-                <input name="newMessage" type="text" value={this.state.newMessage} onChange={(e)=>this.setState({ newMessage: e.target.value })} />
-                <input type="Submit" />
-            </form>
+            <div className="ui comments" style={{position: "absolute", bottom:'10px', right:'20px'}}>
+                <h3 className="ui dividing header">Comments</h3>
+                <div className="comment">
+                    <div className="content">
+                        <div className="text">
+                             {this.state.messages.map( (eachMessage) =>
+                                <p key={eachMessage.id} >
+                                <strong>{eachMessage.username}</strong>: 
+                                {" " + eachMessage.message}</p> 
+                                )}
+                        </div>
+                        <div className="metadata">
+                            <span className="date"> {today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()}</span>
+                        </div>
+                    </div>
+                </div>
+                <form className="ui reply form" onSubmit={(e)=> this.handleSubmit(e)}>
+                    <div className="field" >
+                        <input name="newMessage"  type='text' value={this.state.newMessage} onChange={(e)=>this.setState({ newMessage: e.target.value })}></input>
+                    </div>
+                    <input type="Submit"  className="ui blue button"/>
+                </form>
             </div>
         )
     }
 
     componentDidMount(){
 
+        io.emit('messages/index', {}, messages => this.setState({messages}))
+        
         io.on('newMessage', newMessage =>{
             this.setState({ messages: [...this.state.messages, newMessage]})
         })
@@ -39,27 +58,18 @@ export class Chat extends React.Component{
             io.emit('sentMessage',{message: this.state.newMessage})
             this.setState({ newMessage: "" })
             
-            // , newMessage =>{
-            //     this.setState({
-            //         messages: [...this.state.messages, newMessage],
-            //         newMessage: ""
-            //     })
-            // })
+           
         }
     }       
-    
-   
+
 
 }
 
 
-    //         console.log(messages)
-    //         this.setState({ messages: messages })
-    //     })
-
-    //     io.on('startingHand', startingHand =>{
-    //         console.log(startingHand)
-    //     })
-    // }
-
-    
+//  <div>
+//             {this.state.messages.map( (eachMessage) => <p key={eachMessage.id} >{eachMessage.username}: {eachMessage.message}</p> )}
+//             <form onSubmit={(e)=> this.handleSubmit(e)}>
+//                 <input name="newMessage" type="text" value={this.state.newMessage} onChange={(e)=>this.setState({ newMessage: e.target.value })} />
+//                 <input type="Submit" />
+//             </form>
+//             </div> 
