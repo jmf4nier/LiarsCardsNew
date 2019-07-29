@@ -2,6 +2,7 @@ import React from 'react';
 import { Login } from './Login';
 import { Chat } from './Chat';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { GameRoom } from './GameRoom';
 
 
 class App extends React.Component{
@@ -11,7 +12,7 @@ class App extends React.Component{
       <Router>
         <Route exact path="/" component={Login} />
         <Route exact path="/chat" component={Chat} />
-        <Route exact path="/game-room" component={Chat} />
+        <Route exact path="/game-room" component={GameRoom} />
       </Router>
       // <div>
       //   <Login />
