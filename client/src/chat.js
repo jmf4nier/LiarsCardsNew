@@ -32,7 +32,7 @@ export class Chat extends React.Component{
 
     }    
 
- handleSubmit(e){
+    handleSubmit(e){
         e.preventDefault()
 
         if(this.state.newMessage.split(" ").join("").length > 0){
@@ -47,8 +47,6 @@ export class Chat extends React.Component{
             // })
         }
     }       
-    
-   
 
 }
 

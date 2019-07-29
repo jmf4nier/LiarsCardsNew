@@ -29,19 +29,10 @@ app.use(bodyParser.json());
 // tells app to use cors
 app.use(cors({ origin: 'http://localhost:3000/game-room', credentials: true}));
 
-
-
-
-
-
-
-
-
 // our database models
 const { User, Message } = require("./models")
 
 app.post('/login', async (req, response)=>{
-    
         const {username, password} = req.body
         let user = await User.findOne({ where: { username: username} } )
         if(user === null){
@@ -54,7 +45,7 @@ app.post('/login', async (req, response)=>{
             
             response.send('nope')
         }
-    })
+})
     
 
 
