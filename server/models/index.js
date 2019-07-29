@@ -17,6 +17,7 @@ sqlDatabase.drop()
     })
 })
 
+
 module.exports={
     User: User,
     Message: Message
