@@ -1,8 +1,8 @@
 
 //////////////////////// This section is pretty much the same for every socket app to make later
-
+const bcrypt = require ('bcrypt')
 //figure out which ones I don't need since I'm not using http
-
+const fetch = require('node-fetch');
 //used to route http requests
 const express = require('express')
 
@@ -21,13 +21,16 @@ const http = require('http').createServer(app);
 // used for realtime communication (created after http request (handshake) goes through)
 const io = require('socket.io')(http);
 
+const jwt = require ('jwt-simple')
+
 // tells app to use the bodyParser
 app.use(bodyParser.json())
 
 // tells app to use cors
 app.use(cors({ origin: 'http://localhost:3000/game-room', credentials: true}))
 
-////////////////
+
+
 
 // used to fetch
 const fetch = require('node-fetch')
@@ -49,6 +52,7 @@ app.post('/login', async (request,respond) =>{
     }
 })
 
+<<<<<<< HEAD
 // used to define the room to be in
 const room = io.of('/game-room')
 
@@ -113,12 +117,36 @@ room.on('connection', socket => {
             })
         }
     })
+=======
+//post using http
+app.post('/messages', (request, {}) => {
+    Message.create(request.body)
+    //uses socket to have new messages be received by all sockets in realtime
+    .then(result => io.emit('newMessage', result))
+})
+app.post('/login', async (req, response)=>{
+    
+    const {username, password} = req.body
+    let user = await User.findOne({ where: { username: username} } )
+    if(user === null){
+        let user = await User.create({username: username, password: password})
+    }
+    if(user && bcrypt.compareSync(password, user.password_digest)){
+        
+        response.send('Success')
+    }else{
+        
+        response.send('nope')
+    }
+})
+>>>>>>> jason
 
     socket.on('newHand', ()=> {
         // find a way to make sure people can't just request a new hand whenever
         socket.emit('dealCards', cardArray.splice(0,3) )
     })
 
+<<<<<<< HEAD
     socket.on('guess', guess => {
         room.emit('information', guess)
     })
@@ -132,6 +160,36 @@ room.on('connection', socket => {
         currentUsers.shift()
         room.emit('current-users', currentUsers)
         // make a specific user leave here
+=======
+
+// turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
+io.on('connection', async socket =>{
+    console.log(socket.handshake.query.token)
+    let token = socket.handshake.query.token
+    if (token){
+        let { id } = jwt.decode(token, 'akdsjfljdfi3' )
+        let user = await User.findByPk(id)
+        console.log('connected as: ', user)
+    }
+    //find a way to limit number of users connected to the socket
+
+    User.findByPk(Math.floor(Math.random()*3)+1).then( currentUser => {
+        console.log(currentUser.username)
+        socket.on('messages/index',({},respond)=> {
+            Message.findAll({})
+            .then(messages => respond(messages))
+        })
+    
+        socket.on('sentMessage',async (messageObject,respond)=> {
+            console.log(messageObject)
+            let newMessage = await Message.create({...messageObject,username: currentUser.username})
+            await newMessage.setUser( currentUser )
+            io.emit('newMessage', newMessage)
+            
+        })
+    
+        socket.emit('startingHand', Math.random())
+>>>>>>> jason
     })
 
 
