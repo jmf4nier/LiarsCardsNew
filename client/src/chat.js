@@ -52,14 +52,4 @@ export class Chat extends React.Component{
 
 }
 
-
-    //         console.log(messages)
-    //         this.setState({ messages: messages })
-    //     })
-
-    //     io.on('startingHand', startingHand =>{
-    //         console.log(startingHand)
-    //     })
-    // }
-
     

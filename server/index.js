@@ -52,7 +52,6 @@ app.post('/login', async (request,respond) =>{
     }
 })
 
-<<<<<<< HEAD
 // used to define the room to be in
 const room = io.of('/game-room')
 
@@ -117,7 +116,6 @@ room.on('connection', socket => {
             })
         }
     })
-=======
 //post using http
 app.post('/messages', (request, {}) => {
     Message.create(request.body)
@@ -139,14 +137,12 @@ app.post('/login', async (req, response)=>{
         response.send('nope')
     }
 })
->>>>>>> jason
 
     socket.on('newHand', ()=> {
         // find a way to make sure people can't just request a new hand whenever
         socket.emit('dealCards', cardArray.splice(0,3) )
     })
 
-<<<<<<< HEAD
     socket.on('guess', guess => {
         room.emit('information', guess)
     })
@@ -160,7 +156,6 @@ app.post('/login', async (req, response)=>{
         currentUsers.shift()
         room.emit('current-users', currentUsers)
         // make a specific user leave here
-=======
 
 // turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
 io.on('connection', async socket =>{
@@ -189,7 +184,6 @@ io.on('connection', async socket =>{
         })
     
         socket.emit('startingHand', Math.random())
->>>>>>> jason
     })
 
 
