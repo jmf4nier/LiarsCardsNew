@@ -4,15 +4,12 @@ const Sequelize = require('sequelize')
 
 const sqlDatabase = require('../database')
 const bcrypt = require('bcrypt')
-const shushshushsecret = 'jnkrgasdfvjhnkargdbv;jewadsjkwefa;ndjk greafubildhjgeraj9po7g5yubhw4esrhg ,dfbubh4awefbszvlinujgservbuziz shjhublrefrug hbueljksdvhuw albs'
-
 
 
 const User = sqlDatabase.define( 'user', {
     username: {
         type: Sequelize.STRING
     },
-    
     wins: {
         type: Sequelize.INTEGER
     },
@@ -37,8 +34,3 @@ const User = sqlDatabase.define( 'user', {
 })
 
 module.exports = User
-
-
-
-// const bcrypt = require('bcrypt')
-// const jwt = require('jwt-simple')
