@@ -125,6 +125,10 @@ room.on('connection', socket => {
 
     // this will remove the user that disonnected from the current user array and let everyone know who is in
     socket.on('disconnect', ()=> {
+
+        //buggy about notifying the currect user that left//////////////////////
+        let leavingUser = [...currentUsers][1]
+        room.emit('newNews', `${leavingUser} has left the room`)
         currentUsers.shift()
         room.emit('current-users', currentUsers)
         // make a specific user leave here
@@ -170,14 +174,6 @@ room.on('connection', socket => {
 //             console.log(userArray)
 //         })
 //     })
-
-
-   
-
-//     // make listener for a round starting to distribute the cards
-
-//     // recieve data for final results of each round
-
 
 //     // something to use for creating game rooms that need a pin to get in
 

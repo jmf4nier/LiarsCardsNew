@@ -9,7 +9,8 @@ export class GameRoom extends React.Component{
         myHand: [],
         currentUsers: [],
         ready: false,
-        currentInfo: ""
+        currentInfo: "",
+        news: "no news"
     }
 
     render(){
@@ -34,7 +35,9 @@ export class GameRoom extends React.Component{
                     <br/>
                     <input type="submit"/>
                 </form>
-                <br /><br />
+                <br />
+                <h3>{this.state.news}</h3>
+                <br />
                 <h1>{this.state.currentInfo}</h1>
                 {
                     this.state.currentInfo === "Bluff" || this.state.currentInfo === "Spot On" ?
@@ -64,6 +67,11 @@ export class GameRoom extends React.Component{
         })
 
         io.on('information', currentInfo => this.setState({ currentInfo }))
+
+        io.on('newNews', news => {
+            this.setState({ news })
+            setTimeout(()=> this.setState({ news: "no news now" }), 2000)
+        })
     }
 
     //used to confirm when everyone is ready
