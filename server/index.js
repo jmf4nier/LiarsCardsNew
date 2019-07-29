@@ -1,19 +1,19 @@
 
 //////////////////////// This section is pretty much the same for every socket app to make later
-const bcrypt = require ('bcrypt')
+const bcrypt = require ('bcrypt');
 //figure out which ones I don't need since I'm not using http
 const fetch = require('node-fetch');
 //used to route http requests
-const express = require('express')
+const express = require('express');
 
 //parses bodies for requests
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 
 // sets up the app that we will route information with
-const app = express()
+const app = express();
 
 // Adds a specific header to all http responses to let the browser know a response is safe
-const cors = require('cors')
+const cors = require('cors');
 
 // used to listen for requests
 const http = require('http').createServer(app);
@@ -21,36 +21,43 @@ const http = require('http').createServer(app);
 // used for realtime communication (created after http request (handshake) goes through)
 const io = require('socket.io')(http);
 
-const jwt = require ('jwt-simple')
+const jwt = require ('jwt-simple');
 
 // tells app to use the bodyParser
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // tells app to use cors
-app.use(cors({ origin: 'http://localhost:3000/game-room', credentials: true}))
+app.use(cors({ origin: 'http://localhost:3000/game-room', credentials: true}));
 
 
 
 
-// used to fetch
-const fetch = require('node-fetch')
 
-// used for password shiiiiit
-const bcrypt = require('bcrypt')
+
+
 
 
 // our database models
 const { User, Message } = require("./models")
 
-app.post('/login', async (request,respond) =>{
-    const {username, password } = request.body
-    let user = await User.findOne({ where: {userName: username} })
-    if(user && bcrypt.compareSync(password,user.password_digest)){
-        respond.send(user)
-    }else{
-        respond.send("NO!")
-    }
-})
+app.post('/login', async (req, response)=>{
+    
+        const {username, password} = req.body
+        let user = await User.findOne({ where: { username: username} } )
+        if(user === null){
+            let user = await User.create({username: username, password: password})
+        }
+        if(user && bcrypt.compareSync(password, user.password_digest)){
+            
+            response.send('Success')
+        }else{
+            
+            response.send('nope')
+        }
+    })
+    
+
+
 
 // used to define the room to be in
 const room = io.of('/game-room')
@@ -73,14 +80,6 @@ createDeck = () =>{
     .then(deck => deckID=deck.deck_id)
 }
 
-
-// drawCards = (num) => {
-//     fetch(`https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=${num}`)
-//     .then(r => r.json())
-//     .then(cards=>{
-//         cardArray = cards.cards
-//     })
-// }
 
 //set's up listeners for the connection
 room.on('connection', socket => {
@@ -122,44 +121,12 @@ app.post('/messages', (request, {}) => {
     //uses socket to have new messages be received by all sockets in realtime
     .then(result => io.emit('newMessage', result))
 })
-app.post('/login', async (req, response)=>{
+// 
     
-    const {username, password} = req.body
-    let user = await User.findOne({ where: { username: username} } )
-    if(user === null){
-        let user = await User.create({username: username, password: password})
-    }
-    if(user && bcrypt.compareSync(password, user.password_digest)){
-        
-        response.send('Success')
-    }else{
-        
-        response.send('nope')
-    }
-})
-
-    socket.on('newHand', ()=> {
-        // find a way to make sure people can't just request a new hand whenever
-        socket.emit('dealCards', cardArray.splice(0,3) )
-    })
-
-    socket.on('guess', guess => {
-        room.emit('information', guess)
-    })
-
-    // this will remove the user that disonnected from the current user array and let everyone know who is in
-    socket.on('disconnect', ()=> {
-
-        //buggy about notifying the currect user that left//////////////////////
-        let leavingUser = [...currentUsers][1]
-        room.emit('newNews', `${leavingUser} has left the room`)
-        currentUsers.shift()
-        room.emit('current-users', currentUsers)
-        // make a specific user leave here
 
 // turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
 io.on('connection', async socket =>{
-    console.log(socket.handshake.query.token)
+    
     let token = socket.handshake.query.token
     if (token){
         let { id } = jwt.decode(token, 'akdsjfljdfi3' )
@@ -185,58 +152,25 @@ io.on('connection', async socket =>{
     
         socket.emit('startingHand', Math.random())
     })
+    socket.on('newHand', ()=> {
+        // find a way to make sure people can't just request a new hand whenever
+        socket.emit('dealCards', cardArray.splice(0,3) )
+    })
 
+    socket.on('guess', guess => {
+        room.emit('information', guess)
+    })
+
+    // this will remove the user that disonnected from the current user array and let everyone know who is in
+    socket.on('disconnect', ()=> {
+
+        //buggy about notifying the currect user that left//////////////////////
+        let leavingUser = [...currentUsers][1]
+        room.emit('newNews', `${leavingUser} has left the room`)
+        currentUsers.shift()
+        room.emit('current-users', currentUsers)
+        // make a specific user leave here
 
 })
 
-
-
-// random mess for chat///////////////
-
-// const userArray = []
-
-// // turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
-// io.on('connection', socket =>{
-
-//     //find a way to limit number of users connected to the socket
-
-//     User.findByPk(Math.floor(Math.random()*3)+1).then( currentUser => {
-//         console.log(currentUser.userName,"connected")
-//         userArray.push(currentUser.userName)
-//         console.log(userArray)
-//         socket.on('messages/index',({},respond)=> {
-//             Message.findAll({})
-//             .then(messages => respond(messages))
-//         })
-    
-//         socket.on('sentMessage',async (messageObject,respond)=> {
-//             let newMessage = await Message.create({...messageObject,userName: currentUser.userName})
-//             await newMessage.setUser( currentUser )
-//             io.emit('newMessage', newMessage)
-//             respond(newMessage)
-        
-//         })
-    
-//         socket.emit('startingHand', Math.random())
-
-//         socket.on('disconnect', ()=> {
-//             console.log(currentUser.userName,'disconnected')
-//             let num = userArray.indexOf(currentUser.userName)
-//             userArray.splice(num,1)
-//             console.log(userArray)
-//         })
-//     })
-
-//     // something to use for creating game rooms that need a pin to get in
-
-//     socket.on('pin', () => {
-//         // look up the game
-//         // get the cards for the game
-//         socket.emit('cards',)
-//     })
-
-// })
-
-
-// assigns the port to listen to
 http.listen(8080)
