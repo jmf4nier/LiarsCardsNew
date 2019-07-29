@@ -9,54 +9,31 @@ const shushshushsecret = 'jnkrgasdfvjhnkargdbv;jewadsjkwefa;ndjk greafubildhjger
 
 
 const User = sqlDatabase.define( 'user', {
-<<<<<<< HEAD
-    userName: {
-        type: Sequelize.STRING
-    },
-    password_digest: {
-        type: Sequelize.STRING
-    },
-    password: {
-        type: Sequelize.VIRTUAL,
-        set: function(value){
-            const salt = bcrypt.genSaltSync(10)
-            const hash = bcrypt.hashSync(value, salt)
-            this.setDataValue('password_digest', hash)
-        }
-    },
-    auth_token: {
-        type: Sequelize.VIRTUAL,
-        get: function(){
-            return jwt.encode( {id: this.id} , shushshushsecret)
-        }
-    },
-=======
     username: {
         type: Sequelize.STRING
     },
     
->>>>>>> jason
     wins: {
         type: Sequelize.INTEGER
     },
     password_digest:{
         type: Sequelize.STRING
     }, 
-    // password:{
-    //     type: Sequelize.VIRTUAL,
-    //     set: function(value){
-    //         const salt = bcrypt.genSaltSync(10);
-    //         const hash = bcrypt.hashSync(value, salt);
-    //         this.setDataValue('password_digest', hash)
+    password:{
+        type: Sequelize.VIRTUAL,
+        set: function(value){
+            const salt = bcrypt.genSaltSync(10);
+            const hash = bcrypt.hashSync(value, salt);
+            this.setDataValue('password_digest', hash)
 
-    //     }
-    //},
-    // auth_token:{
-    //     type: Sequelize.VIRTUAL,
-    //     get: function(){
-    //         return jwt.encode({ id: this.id}, 'akdsjfljdfi3')
-    //     }
-    // }
+        }
+    },
+    auth_token:{
+        type: Sequelize.VIRTUAL,
+        get: function(){
+            return jwt.encode({ id: this.id}, 'akdsjfljdfi3')
+        }
+    }
 })
 
 module.exports = User

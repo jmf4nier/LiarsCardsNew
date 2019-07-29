@@ -1,8 +1,7 @@
 
 //////////////////////// This section is pretty much the same for every socket app to make later
-const bcrypt = require ('bcrypt')
+
 //figure out which ones I don't need since I'm not using http
-const fetch = require('node-fetch');
 //used to route http requests
 const express = require('express')
 
@@ -21,7 +20,8 @@ const http = require('http').createServer(app);
 // used for realtime communication (created after http request (handshake) goes through)
 const io = require('socket.io')(http);
 
-const jwt = require ('jwt-simple')
+// used for password stuff
+const jwt = require ('jwt-simple');
 
 // tells app to use the bodyParser
 app.use(bodyParser.json())
@@ -42,17 +42,22 @@ const bcrypt = require('bcrypt')
 // our database models
 const { User, Message } = require("./models")
 
-app.post('/login', async (request,respond) =>{
-    const {username, password } = request.body
-    let user = await User.findOne({ where: {userName: username} })
-    if(user && bcrypt.compareSync(password,user.password_digest)){
-        respond.send(user)
+app.post('/login', async (req, response)=>{
+    
+    const {username, password} = req.body
+    let user = await User.findOne({ where: { username: username} } )
+    if(user === null){
+        let user = await User.create({username: username, password: password})
+    }
+    if(user && bcrypt.compareSync(password, user.password_digest)){
+        
+        response.send('Success')
     }else{
-        respond.send("NO!")
+        
+        response.send('nope')
     }
 })
 
-<<<<<<< HEAD
 // used to define the room to be in
 const room = io.of('/game-room')
 
@@ -75,27 +80,20 @@ createDeck = () =>{
 }
 
 
-// drawCards = (num) => {
-//     fetch(`https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=${num}`)
-//     .then(r => r.json())
-//     .then(cards=>{
-//         cardArray = cards.cards
-//     })
-// }
-
 //set's up listeners for the connection
 room.on('connection', socket => {
 
     if(!deckMade){
         createDeck()
     }
-
+    
     if(currentUsers.length === 0){
         readyCount = 0
     }
     // push actual users into the array and let all users connected know who's in the room
     currentUsers.push("randoUser" + Math.floor(Math.random()*10) )
     room.emit('current-users', currentUsers)
+    
 
     // this function should give each play the amount of cards they need
     socket.on('newRound', async(readyConfirm)=>{
@@ -117,36 +115,13 @@ room.on('connection', socket => {
             })
         }
     })
-=======
-//post using http
-app.post('/messages', (request, {}) => {
-    Message.create(request.body)
-    //uses socket to have new messages be received by all sockets in realtime
-    .then(result => io.emit('newMessage', result))
-})
-app.post('/login', async (req, response)=>{
-    
-    const {username, password} = req.body
-    let user = await User.findOne({ where: { username: username} } )
-    if(user === null){
-        let user = await User.create({username: username, password: password})
-    }
-    if(user && bcrypt.compareSync(password, user.password_digest)){
-        
-        response.send('Success')
-    }else{
-        
-        response.send('nope')
-    }
-})
->>>>>>> jason
+
 
     socket.on('newHand', ()=> {
         // find a way to make sure people can't just request a new hand whenever
         socket.emit('dealCards', cardArray.splice(0,3) )
     })
 
-<<<<<<< HEAD
     socket.on('guess', guess => {
         room.emit('information', guess)
     })
@@ -159,18 +134,22 @@ app.post('/login', async (req, response)=>{
         room.emit('newNews', `${leavingUser} has left the room`)
         currentUsers.shift()
         room.emit('current-users', currentUsers)
-        // make a specific user leave here
-=======
+        // make a specific user leave here    
+        
+    })
 
-// turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
+})
+    
+// this stuff is for using users to login and chat
+
 io.on('connection', async socket =>{
-    console.log(socket.handshake.query.token)
-    let token = socket.handshake.query.token
-    if (token){
-        let { id } = jwt.decode(token, 'akdsjfljdfi3' )
-        let user = await User.findByPk(id)
-        console.log('connected as: ', user)
-    }
+    // console.log(socket.handshake.query.token)
+    // let token = socket.handshake.query.token
+    // if (token){
+    //     let { id } = jwt.decode(token, 'akdsjfljdfi3' )
+    //     let user = await User.findByPk(id)
+    //     console.log('connected as: ', user)
+    // }
     //find a way to limit number of users connected to the socket
 
     User.findByPk(Math.floor(Math.random()*3)+1).then( currentUser => {
@@ -187,14 +166,8 @@ io.on('connection', async socket =>{
             io.emit('newMessage', newMessage)
             
         })
-    
-        socket.emit('startingHand', Math.random())
->>>>>>> jason
     })
-
-
 })
-
 
 
 // random mess for chat///////////////
