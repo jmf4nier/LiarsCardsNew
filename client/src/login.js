@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Form, Grid, Header, Message, Segment } from 'semantic-ui-react'
-import 'semantic-ui-css/semantic.min.css';
+import 'semantic-ui-css/semantic.min.css'
 import { Link } from 'react-router-dom'
 
 
@@ -36,11 +36,17 @@ export default class Login extends React.Component{
             })
         })
         .then(rsp=>rsp.text())
-        .then(console.log)
-        .then(this.setState({
-            password: '',
-            username: ''
-        }))
+        .then(reply => {
+            if(reply === "Success"){
+                this.props.history.push('/game-room')
+            }else{
+                console.log("reply")
+                this.setState({
+                    password: '',
+                    username: ''
+                })
+            }
+        })
     }
 
     render(){
