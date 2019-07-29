@@ -25,7 +25,3 @@ module.exports={
     User: User,
     Message: Message
 }
-
-
-
-// const bcrypt = require ('bcrypt')

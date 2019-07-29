@@ -1,8 +1,8 @@
 
 //////////////////////// This section is pretty much the same for every socket app to make later
 const bcrypt = require ('bcrypt');
+
 //figure out which ones I don't need since I'm not using http
-const fetch = require('node-fetch');
 //used to route http requests
 const express = require('express');
 
@@ -21,6 +21,7 @@ const http = require('http').createServer(app);
 // used for realtime communication (created after http request (handshake) goes through)
 const io = require('socket.io')(http);
 
+// used for password stuff
 const jwt = require ('jwt-simple');
 
 // tells app to use the bodyParser
@@ -44,6 +45,19 @@ app.post('/login', async (req, response)=>{
         }else{
             response.send('nope')
         }
+    
+    const {username, password} = req.body
+    let user = await User.findOne({ where: { username: username} } )
+    if(user === null){
+        let user = await User.create({username: username, password: password})
+    }
+    if(user && bcrypt.compareSync(password, user.password_digest)){
+        
+        response.send('Success')
+    }else{
+        
+        response.send('nope')
+    }
 })
     
 
@@ -77,13 +91,14 @@ room.on('connection', socket => {
     if(!deckMade){
         createDeck()
     }
-
+    
     if(currentUsers.length === 0){
         readyCount = 0
     }
     // push actual users into the array and let all users connected know who's in the room
     currentUsers.push("randoUser" + Math.floor(Math.random()*10) )
     room.emit('current-users', currentUsers)
+    
 
     // this function should give each play the amount of cards they need
     socket.on('newRound', async(readyConfirm)=>{
@@ -105,16 +120,33 @@ room.on('connection', socket => {
             })
         }
     })
-//post using http
-app.post('/messages', (request, {}) => {
-    Message.create(request.body)
-    //uses socket to have new messages be received by all sockets in realtime
-    .then(result => io.emit('newMessage', result))
-})
-// 
-    
 
-// turns on listener for other sockets connecting. once a socket connects, creates listeners for the specific socket
+
+    socket.on('newHand', ()=> {
+        // find a way to make sure people can't just request a new hand whenever
+        socket.emit('dealCards', cardArray.splice(0,3) )
+    })
+
+    socket.on('guess', guess => {
+        room.emit('information', guess)
+    })
+
+    // this will remove the user that disonnected from the current user array and let everyone know who is in
+    socket.on('disconnect', ()=> {
+
+        //buggy about notifying the currect user that left//////////////////////
+        let leavingUser = [...currentUsers][1]
+        room.emit('newNews', `${leavingUser} has left the room`)
+        currentUsers.shift()
+        room.emit('current-users', currentUsers)
+        // make a specific user leave here    
+        
+    })
+
+})
+    
+// this stuff is for using users to login and chat
+
 io.on('connection', async socket =>{
     
     let token = socket.handshake.query.token
