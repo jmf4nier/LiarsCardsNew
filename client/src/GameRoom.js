@@ -1,5 +1,6 @@
 import React from 'react'
 import socketIO from 'socket.io-client'
+import { Chat } from './Chat';
 
 let io;
 
@@ -10,31 +11,37 @@ export class GameRoom extends React.Component{
         currentUsers: [],
         ready: false,
         currentInfo: "",
-        news: "no news"
+        news: "no news",
+        myTurn: false,
+        chatMessages: [],
+        newMessage: ""
     }
 
     render(){
+
+        let callOptions = <form onSubmit={(e)=>this.callSubmit(e)}>
+            <select name='call'>
+                <option>Bluff</option>
+                <option>Spot On</option>
+                <option>Pass</option>
+            </select>
+            <br/>
+            <input name='guess' type='text' placeholder="If 'Pass', put what your guess is here" style={{ width:'200px' }} />
+            <br/>
+            <input type="submit"/>
+        </form>
+
         return(
             <div>
                 {this.state.myHand.map( card => <img key={card.code} src={card.image} alt={card.code} />)}
                 <ol>
-                    {this.state.currentUsers.map( (user,i) =>{
-                        return <li key={i} >{user}</li>
+                    {this.state.currentUsers.map( (user) =>{
+                        return <li key={user.id} >{user.username}</li>
                     })}
                 </ol>
                 <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>
                 <br/> <br/>
-                <form onSubmit={(e)=>this.callSubmit(e)}>
-                    <select name='call'>
-                        <option>Bluff</option>
-                        <option>Spot On</option>
-                        <option>Pass</option>
-                    </select>
-                    <br/>
-                    <input name='guess' type='text' placeholder="If 'Pass', put what your guess is here" style={{ width:'200px' }} />
-                    <br/>
-                    <input type="submit"/>
-                </form>
+                {this.state.myTurn ? callOptions : null}
                 <br />
                 <h3>{this.state.news}</h3>
                 <br />
@@ -44,6 +51,9 @@ export class GameRoom extends React.Component{
                     <button onClick={this.confirmCall}>Confirm</button> :
                     null
                 }
+                <div>
+                    <Chat chatMessages={this.state.chatMessages} newMessage={this.state.newMessage} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
+                </div>
             </div>
         )
     }
@@ -72,6 +82,30 @@ export class GameRoom extends React.Component{
             this.setState({ news })
             setTimeout(()=> this.setState({ news: "no news now" }), 2000)
         })
+
+        //listeners for the chat
+        io.emit('messages/index', {}, chatMessages => {
+            this.setState({ chatMessages })
+        })
+
+        io.on('newMessage', newMessage =>{
+            this.setState({ chatMessages: [...this.state.chatMessages, newMessage]})
+        })
+    }
+
+    //handles submission of new messages
+    handleSubmit = (e) => {
+        e.preventDefault()
+
+        if(this.state.newMessage.split(" ").join("").length > 0){
+            io.emit('sentMessage',{message: this.state.newMessage})
+            this.setState({ newMessage: "" })
+        }
+    }
+    
+    //changes new message state when user is typing
+    handleChange = (e) => {
+        this.setState({ newMessage: e.target.value })
     }
 
     //used to confirm when everyone is ready
@@ -80,6 +114,7 @@ export class GameRoom extends React.Component{
         io.emit('newRound', !this.state.ready)
     }
 
+    // used to submit a call
     callSubmit = (e) => {
         e.preventDefault()
         let desiredOption;
@@ -89,6 +124,7 @@ export class GameRoom extends React.Component{
         io.emit('guess', desiredOption)
     }
 
+    // confirms that user saw the call
     confirmCall = () => {
         console.log("call confirmed")
     }
