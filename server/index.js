@@ -154,7 +154,11 @@ room.on('connection', async socket => {
             }else{
                 turnCount=0
             }
-            room.emit('whose-turn', roomUsers[turnCount].username )
+            if( guess.desiredOption === "Bluff" || guess.desiredOption === "Spot On"){
+                room.emit('whose-turn', "" )
+            }else{
+                room.emit('whose-turn', roomUsers[turnCount].username )
+            }
         })
 
         // this will remove the user that disonnected from the current user array and let everyone know who is in

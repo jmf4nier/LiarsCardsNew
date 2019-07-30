@@ -16,7 +16,8 @@ export class GameRoom extends React.Component{
         userTurn: "",
         chatMessages: [],
         newMessage: "",
-        username: ""
+        username: "",
+        inRound: false
     }
 
     render(){
@@ -44,7 +45,11 @@ export class GameRoom extends React.Component{
                         })}
                     </ol>
                 </div>
-                <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>
+                <br/>
+                {!this.state.inRound ?
+                    <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>:
+                    null
+                }
                 <br/> <br/>
                 {this.state.userTurn === this.state.username ? callOptions : null}
                 <br />
@@ -52,8 +57,8 @@ export class GameRoom extends React.Component{
                 {/* display turn information better */}
                 <h1>{this.state.currentInfo.username}- {this.state.currentInfo.guess}</h1>
                 {
-                    this.state.currentInfo === "Bluff" || this.state.currentInfo === "Spot On" ?
-                    <button onClick={this.confirmCall}>Confirm</button> :
+                    this.state.currentInfo.guess === "Bluff" || this.state.currentInfo.guess === "Spot On" ?
+                    <button onClick={this.confirmCall}>Show Cards</button> :
                     null
                 }
                 <Chat chatMessages={this.state.chatMessages} newMessage={this.state.newMessage} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
@@ -80,6 +85,7 @@ export class GameRoom extends React.Component{
         // once everyone is ready, will request server for a new hand
         io.on('allReady', readyCheck =>{
             if(readyCheck){
+                this.setState({ inRound: true })
                 io.emit('newHand', {}, myHand =>{
                     this.setState({ myHand, ready: false })
                 })
