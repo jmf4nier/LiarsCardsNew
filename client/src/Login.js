@@ -26,7 +26,6 @@ export default class Login extends React.Component{
         
         fetch('http://localhost:8080/login', {
             method: 'POST',
-            
             headers: {
                 'Content-type': 'application/json',
                 'Accept': 'application/json'
@@ -38,23 +37,17 @@ export default class Login extends React.Component{
         })
         .then(rsp=>rsp.text())
         .then(result => {
-            console.log(result)
             if(result !== 'null'){
                 window.localStorage.setItem('token', result)
                 this.props.history.push('/game-room')
-        }else{
-            this.setState({
-                error: true,
-                password: ''
-            })
-         }
+            }else{
+                this.setState({
+                    error: true,
+                    password: ''
+                })
+            }
            
         })
-        // .then(this.setState({
-        //     password: '',
-        //     username: ''
-        // }))
-        console.log(window.localStorage.getItem('token'))
     }
     
     render(){

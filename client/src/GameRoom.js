@@ -70,7 +70,6 @@ export class GameRoom extends React.Component{
                         })}
                     </ol>
                 </div>
-                {this.state.moves.length > 0? <Move moves={this.state.moves}/>: null}
                 <br/>
                 {!this.state.inRound ?
                     <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>:
@@ -91,7 +90,7 @@ export class GameRoom extends React.Component{
                     showAllCards :
                     null
                 }
-                {this.state.moves.length > 0 ? <Move moves={this.state.moves} /> : null }
+                <Move moves={this.state.moves} />
                 <Chat chatMessages={this.state.chatMessages} newMessage={this.state.newMessage} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
             </div>
         )
