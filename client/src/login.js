@@ -43,6 +43,7 @@ export default class Login extends React.Component{
             password: '',
             username: ''
         }))
+        console.log(window.localStorage.getItem('token'))
     }
     
     render(){

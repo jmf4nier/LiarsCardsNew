@@ -147,7 +147,7 @@ room.on('connection', socket => {
 // this stuff is for using users to login and chat
 
 io.on('connection', async socket =>{
-    console.log(socket.handshake.query.token)
+    
     let token = socket.handshake.query.token
     if (token){
         let { id } = jwt.decode(token, 'akdsjfljdfi3' )
