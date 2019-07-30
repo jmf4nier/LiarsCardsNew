@@ -46,11 +46,13 @@ const { User, Message, Move } = require("./models")
 app.post('/signup', async (req, response)=>{
     const {username, password} = req.body
     let user = await User.findOne({ where: { username: username} } )
-    if(user === null){
+    if(user === null && username.split(" ").join("").length > 0 && password.split(" ").join("").length > 3){
         let newUser = await User.create({username: username, password: password})
         response.send(newUser.auth_token)
-    }else{
-        response.send('Username Not Available')
+    }else if(username.split(" ").join("").length < 1 || user !== null){
+        response.send('username taken')
+    }else if(password.split(" ").join("").length < 4){
+        response.send('password too short')
     }
 })
 app.post('/login', async (req, response)=>{
@@ -59,7 +61,8 @@ app.post('/login', async (req, response)=>{
     if(user && bcrypt.compareSync(password, user.password_digest)){
         response.send( user.auth_token)
     }else{
-        response.send('Wrong Password/Username')
+        
+        response.send('null')
     }
 })
     

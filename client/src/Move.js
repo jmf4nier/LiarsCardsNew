@@ -11,7 +11,7 @@ export default class Move extends React.Component{
     render(){
         let {moves} = this.props
         return(
-            <div id='moveDiv' style={{textAlign:'center',position:'absolute', right:'5%', top: '20%', borderStyle:'solid', borderWidth:'.5px', height:'100px', overflowY:'auto'}}>
+            <div id='moveDiv'>
                 <strong>Moves:</strong>
                 <ol style={{ marginRight:'20px'}}>
                     {moves.map( (move) =>{

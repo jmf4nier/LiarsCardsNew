@@ -25,7 +25,8 @@ export class GameRoom extends React.Component{
     render(){
        
 
-        let callOptions = <form onSubmit={(e)=>this.callSubmit(e)}>
+        let callOptions = 
+        <form id='options' onSubmit={(e)=>this.callSubmit(e)}>
             <select name='call'>
                 <option>Bluff</option>
                 <option>Spot On</option>
@@ -45,15 +46,20 @@ export class GameRoom extends React.Component{
 
         return(
             <div>
-                {this.state.myHand.map( card => <img key={card.code} src={card.image} alt={card.code} />)}
-                <div style={{textAlign:'center',position:'absolute', right:'90px', top: '30px', borderStyle:'solid', borderWidth:'.5px'}}>
+               <div id='cards'>
+                    {this.state.myHand.map( card => {
+                        return <img id='card' key={card.code} src={card.image} alt={card.code} height='250px'width='200px' />
+                    })}
+                </div>
+                <div id='users'>
                     <strong>Players:</strong>
-                    <ol style={{ marginRight:'20px'}}>
+                    <ol id='user-list'>
                         {this.state.currentUsers.map( (user) =>{
                             return <li key={user.id} >{user.username}</li>
                         })}
                     </ol>
                 </div>
+                {this.state.moves.length > 0? <Move moves={this.state.moves}/>: null}
                 <br/>
                 {!this.state.inRound ?
                     <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>:
