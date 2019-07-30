@@ -5,7 +5,7 @@ import 'semantic-ui-css/semantic.min.css';
 export default class Signup extends React.Component{
     state={
         username: '',
-        password: '',
+        password: ''
     }
 
     handleOnChange = (type, value)=>{
@@ -21,7 +21,6 @@ export default class Signup extends React.Component{
     }
     
     handleLogin = ()=>{
-        
         fetch('http://localhost:8080/signup', {
             method: 'POST',
             

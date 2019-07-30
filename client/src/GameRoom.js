@@ -13,10 +13,10 @@ export class GameRoom extends React.Component{
         currentUsers: [],
         ready: false,
         currentInfo: "",
-        news: "no news",
-        myTurn: false,
+        userTurn: "",
         chatMessages: [],
-        newMessage: ""
+        newMessage: "",
+        username: ""
     }
 
     render(){
@@ -46,11 +46,11 @@ export class GameRoom extends React.Component{
                 </div>
                 <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>
                 <br/> <br/>
-                {this.state.myTurn ? callOptions : null}
+                {this.state.userTurn === this.state.username ? callOptions : null}
                 <br />
-                <h3>{this.state.news}</h3>
                 <br />
-                <h1>{this.state.currentInfo}</h1>
+                {/* display turn information better */}
+                <h1>{this.state.currentInfo.username}- {this.state.currentInfo.guess}</h1>
                 {
                     this.state.currentInfo === "Bluff" || this.state.currentInfo === "Spot On" ?
                     <button onClick={this.confirmCall}>Confirm</button> :
@@ -62,29 +62,35 @@ export class GameRoom extends React.Component{
     }
 
     componentDidMount(){
-        io = socketIO('http://localhost:8080/game-room')
+
+        // gets token, sends to server
+        let token = window.localStorage.getItem('token')
+        io = socketIO('http://localhost:8080/game-room', {
+            query: { token }
+        })
+
+        // gets back username from database
+        io.on('username', username => this.setState({ username }))
+
+        // checks who's in the room
         io.on('current-users', currentUsers =>{
             this.setState({ currentUsers })
         })
+
         // once everyone is ready, will request server for a new hand
         io.on('allReady', readyCheck =>{
             if(readyCheck){
-                console.log("requesting new hand")
-                io.emit('newHand', {})
+                io.emit('newHand', {}, myHand =>{
+                    this.setState({ myHand, ready: false })
+                })
             }
         })
 
-        // when server is reaquested for a newHand, will deal out cards to everyone
-        io.on('dealCards', myHand => {
-            this.setState({ myHand, ready: false })
-        })
+        // shows who's turn it is
+        io.on('whose-turn', userTurn => this.setState({ userTurn }) )
 
+        //displays what people call on their turn (bluff, spot on, or pass with value)
         io.on('information', currentInfo => this.setState({ currentInfo }))
-
-        io.on('newNews', news => {
-            this.setState({ news })
-            setTimeout(()=> this.setState({ news: "no news now" }), 2000)
-        })
 
         //listeners for the chat
         io.emit('messages/index', {}, chatMessages => {
@@ -123,8 +129,8 @@ export class GameRoom extends React.Component{
         let desiredOption;
         let call = e.target.call.value
         let guess = e.target.guess.value
-        call === "Bluff" || call === "Spot On" ? desiredOption = call : desiredOption = guess
-        io.emit('guess', desiredOption)
+        call === "Bluff" || call === "Spot On" ? desiredOption = call : desiredOption = "Guess: " + guess
+        io.emit('guess', {username: this.state.username , desiredOption})
     }
 
     // confirms that user saw the call
