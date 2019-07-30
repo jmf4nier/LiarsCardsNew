@@ -36,19 +36,16 @@ export default class Login extends React.Component{
             })
         })
         .then(rsp=>rsp.text())
-        .then(reply => {
-            if(reply === "Success"){
-                this.props.history.push('/game-room')
-            }else{
-                console.log("reply")
-                this.setState({
-                    password: '',
-                    username: ''
-                })
-            }
+        .then(result => {
+            window.localStorage.setItem('token', result)
+            this.props.history.push('/game-room')
         })
+        .then(this.setState({
+            password: '',
+            username: ''
+        }))
     }
-
+    
     render(){
         return(
             
