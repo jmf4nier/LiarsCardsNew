@@ -47,7 +47,7 @@ app.post('/signup', async (req, response)=>{
     let user = await User.findOne({ where: { username: username} } )
     if(user === null){
         let newUser = await User.create({username: username, password: password})
-        response.send(user.auth_token)
+        response.send(newUser.auth_token)
     }else{
         response.send('Username Not Available')
     }
@@ -72,6 +72,7 @@ let roomUsers = []
 let deckMade = false
 let deckID = ""
 let cardArray = []
+let finalDisplay = []
 
 // used for checking who's turn it is
 let turnCount = 0
@@ -120,6 +121,8 @@ room.on('connection', async socket => {
 
         // this function should give each play the amount of cards they need
         socket.on('newRound', async(readyConfirm)=>{
+            finalDisplay=[]
+            currentUser.reveal = false
             if(readyConfirm){
                 currentUser.ready = true
             }else{
@@ -158,6 +161,17 @@ room.on('connection', async socket => {
                 room.emit('whose-turn', "" )
             }else{
                 room.emit('whose-turn', roomUsers[turnCount].username )
+            }
+        })
+
+        socket.on('reveal-cards', cards => {
+            if(!currentUser.reveal){
+                currentUser.reveal = true
+                finalDisplay.push( ...cards )
+            }
+            revealCheck = roomUsers.filter( user => user.reveal )
+            if(revealCheck.length === roomUsers.length){
+                room.emit('final-display', finalDisplay)
             }
         })
 

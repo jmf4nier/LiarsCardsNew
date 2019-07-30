@@ -17,7 +17,8 @@ export class GameRoom extends React.Component{
         chatMessages: [],
         newMessage: "",
         username: "",
-        inRound: false
+        inRound: false,
+        finalDisplay: []
     }
 
     render(){
@@ -33,6 +34,12 @@ export class GameRoom extends React.Component{
             <br/>
             <input type="submit"/>
         </form>
+
+        let showAllCards = <ul>
+            {this.state.finalDisplay.map( card =>{
+                return <li>{card.username}:{card.code}</li>
+            })}
+        </ul>
 
         return(
             <div>
@@ -61,6 +68,11 @@ export class GameRoom extends React.Component{
                     <button onClick={this.confirmCall}>Show Cards</button> :
                     null
                 }
+                {
+                    this.state.finalDisplay.length > 0 ?
+                    showAllCards :
+                    null
+                }
                 <Chat chatMessages={this.state.chatMessages} newMessage={this.state.newMessage} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
             </div>
         )
@@ -85,7 +97,7 @@ export class GameRoom extends React.Component{
         // once everyone is ready, will request server for a new hand
         io.on('allReady', readyCheck =>{
             if(readyCheck){
-                this.setState({ inRound: true })
+                this.setState({ inRound: true, finalDisplay: [], currentInfo: "" })
                 io.emit('newHand', {}, myHand =>{
                     this.setState({ myHand, ready: false })
                 })
@@ -97,6 +109,11 @@ export class GameRoom extends React.Component{
 
         //displays what people call on their turn (bluff, spot on, or pass with value)
         io.on('information', currentInfo => this.setState({ currentInfo }))
+
+        // reveals all cards at the end of a round
+        io.on('final-display', finalDisplay => this.setState({ finalDisplay, inRound: false }))
+
+
 
         //listeners for the chat
         io.emit('messages/index', {}, chatMessages => {
@@ -141,6 +158,7 @@ export class GameRoom extends React.Component{
 
     // confirms that user saw the call
     confirmCall = () => {
-        console.log("call confirmed")
+        let cards = this.state.myHand.map( card => ( {...card, username: this.state.username} ))
+        io.emit('reveal-cards', cards)
     }
 }

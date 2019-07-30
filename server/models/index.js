@@ -26,5 +26,6 @@ sqlDatabase.drop()
 
 module.exports={
     User: User,
-    Message: Message
+    Message: Message,
+    Move: Move
 }
