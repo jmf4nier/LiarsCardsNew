@@ -63,7 +63,6 @@ export class GameRoom extends React.Component{
                 {this.state.userTurn === this.state.username ? callOptions : null}
                 <br />
                 <br />
-                {/* display turn information better */}
                 <h1>{this.state.currentInfo.username}- {this.state.currentInfo.guess}</h1>
                 {
                     this.state.currentInfo.guess === "Bluff" || this.state.currentInfo.guess === "Spot On" ?
@@ -75,6 +74,7 @@ export class GameRoom extends React.Component{
                     showAllCards :
                     null
                 }
+                {this.state.moves.length > 0 ? <Move moves={this.state.moves} /> : null }
                 <Chat chatMessages={this.state.chatMessages} newMessage={this.state.newMessage} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
             </div>
         )
