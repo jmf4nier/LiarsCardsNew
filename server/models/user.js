@@ -20,7 +20,6 @@ const User = sqlDatabase.define( 'user', {
             const salt = bcrypt.genSaltSync(10);
             const hash = bcrypt.hashSync(value, salt);
             this.setDataValue('password_digest', hash)
-
         }
     },
     auth_token:{

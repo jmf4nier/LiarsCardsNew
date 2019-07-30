@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Form, Grid, Header, Message, Segment } from 'semantic-ui-react'
-import 'semantic-ui-css/semantic.min.css';
+import 'semantic-ui-css/semantic.min.css'
 import { Link } from 'react-router-dom'
 
 
@@ -36,13 +36,17 @@ export default class Login extends React.Component{
             })
         })
         .then(rsp=>rsp.text())
-        .then(console.log)
+        .then(result => {
+            window.localStorage.setItem('token', result)
+            this.props.history.push('/game-room')
+        })
         .then(this.setState({
             password: '',
             username: ''
         }))
+        console.log(window.localStorage.getItem('token'))
     }
-
+    
     render(){
         return(
             
