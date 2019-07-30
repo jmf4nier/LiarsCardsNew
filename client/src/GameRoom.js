@@ -17,7 +17,9 @@ export class GameRoom extends React.Component{
         userTurn: "",
         chatMessages: [],
         newMessage: "",
-        username: ""
+        username: "",
+        inRound: false,
+        finalDisplay: []
     }
 
     render(){
@@ -35,6 +37,12 @@ export class GameRoom extends React.Component{
             <input type="submit"/>
         </form>
 
+        let showAllCards = <ul>
+            {this.state.finalDisplay.map( card =>{
+                return <li>{card.username}:{card.code}</li>
+            })}
+        </ul>
+
         return(
             <div>
                 {this.state.myHand.map( card => <img key={card.code} src={card.image} alt={card.code} />)}
@@ -46,8 +54,11 @@ export class GameRoom extends React.Component{
                         })}
                     </ol>
                 </div>
-                {this.state.moves.length > 0? <Move moves={this.state.moves}/> : null}
-                <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>
+                <br/>
+                {!this.state.inRound ?
+                    <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>:
+                    null
+                }
                 <br/> <br/>
                 {this.state.userTurn === this.state.username ? callOptions : null}
                 <br />
@@ -55,8 +66,13 @@ export class GameRoom extends React.Component{
                 {/* display turn information better */}
                 <h1>{this.state.currentInfo.username}- {this.state.currentInfo.guess}</h1>
                 {
-                    this.state.currentInfo === "Bluff" || this.state.currentInfo === "Spot On" ?
-                    <button onClick={this.confirmCall}>Confirm</button> :
+                    this.state.currentInfo.guess === "Bluff" || this.state.currentInfo.guess === "Spot On" ?
+                    <button onClick={this.confirmCall}>Show Cards</button> :
+                    null
+                }
+                {
+                    this.state.finalDisplay.length > 0 ?
+                    showAllCards :
                     null
                 }
                 <Chat chatMessages={this.state.chatMessages} newMessage={this.state.newMessage} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
@@ -83,6 +99,7 @@ export class GameRoom extends React.Component{
         // once everyone is ready, will request server for a new hand
         io.on('allReady', readyCheck =>{
             if(readyCheck){
+                this.setState({ inRound: true, finalDisplay: [], currentInfo: "" })
                 io.emit('newHand', {}, myHand =>{
                     this.setState({ myHand, ready: false })
                 })
@@ -97,6 +114,11 @@ export class GameRoom extends React.Component{
             currentInfo, 
             moves: [...this.state.moves, currentInfo]
         }))
+
+        // reveals all cards at the end of a round
+        io.on('final-display', finalDisplay => this.setState({ finalDisplay, inRound: false }))
+
+
 
         //listeners for the chat
         io.emit('messages/index', {}, chatMessages => {
@@ -142,6 +164,7 @@ export class GameRoom extends React.Component{
 
     // confirms that user saw the call
     confirmCall = () => {
-        console.log("call confirmed")
+        let cards = this.state.myHand.map( card => ( {...card, username: this.state.username} ))
+        io.emit('reveal-cards', cards)
     }
 }
