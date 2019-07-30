@@ -9,6 +9,7 @@ export class GameRoom extends React.Component{
 
     state={
         myHand: [],
+        moves: [],
         currentUsers: [],
         ready: false,
         currentInfo: "",
@@ -35,11 +36,14 @@ export class GameRoom extends React.Component{
         return(
             <div>
                 {this.state.myHand.map( card => <img key={card.code} src={card.image} alt={card.code} />)}
-                <ol>
-                    {this.state.currentUsers.map( (user) =>{
-                        return <li key={user.id} >{user.username}</li>
-                    })}
-                </ol>
+                <div style={{textAlign:'center',position:'absolute', right:'80px', top: '30px', borderStyle:'solid', borderWidth:'.5px'}}>
+                    <strong>Players:</strong>
+                    <ol style={{ marginRight:'20px'}}>
+                        {this.state.currentUsers.map( (user) =>{
+                            return <li key={user.id} >{user.username}</li>
+                        })}
+                    </ol>
+                </div>
                 <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>
                 <br/> <br/>
                 {this.state.myTurn ? callOptions : null}
