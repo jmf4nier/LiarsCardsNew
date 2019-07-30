@@ -12,7 +12,7 @@ export class Chat extends React.Component{
                 <div className="comment">
                     <div className="content">
                         <div className="text">
-                             {this.state.messages.map( (eachMessage) =>
+                             {this.props.chatMessages.map( (eachMessage) =>
                                 <p key={eachMessage.id} >
                                 <strong>{eachMessage.username}</strong>: 
                                 {" " + eachMessage.message}</p> 
@@ -25,7 +25,7 @@ export class Chat extends React.Component{
                 </div>
                 <form className="ui reply form" onSubmit={(e)=> this.props.handleSubmit(e)}>
                     <div className="field" >
-                        <input name="newMessage"  type='text' value={this.state.newMessage} onChange={(e)=>this.props.handleChange(e)}></input>
+                        <input name="newMessage"  type='text' value={this.props.newMessage} onChange={(e)=>this.props.handleChange(e)}></input>
                     </div>
                     <input type="Submit"  className="ui blue button"/>
                 </form>
