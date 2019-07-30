@@ -76,7 +76,16 @@ let roomUsers = []
 let deckMade = false
 let deckID = ""
 let cardArray = []
+
+// array used for displaying final results of cards
 let finalDisplay = []
+
+// object used to store how many of each suit is in a round
+let suitHash = {}
+
+// used to store the last guess and final call
+let lastGuess = null
+let finalCall = ""
 
 // used for checking who's turn it is
 let turnCount = 0
@@ -97,9 +106,18 @@ room.on('connection', async socket => {
         let currentUser = await User.findByPk(id)
         socket.emit('username', currentUser.username)
 
-        let userJoinedMessage = await Message.create({ message: `${currentUser.username} has joined the room`, username: "Bot" })
-        room.emit('newMessage', userJoinedMessage)
+        // sets that user as in the game
+        currentUser.stillIn = true
+
+        let userJoinedMessage = await Move.create({ move: 'joined the room', username: currentUser.username })
+        room.emit('information', userJoinedMessage)
         
+
+        //loads moves in moves box
+        socket.on('moves/index',({},respond)=> {
+            Move.findAll({})
+            .then(moves => respond(moves))
+        })
 
         // loads messages in chat box
         socket.on('messages/index',({},respond)=> {
@@ -108,13 +126,15 @@ room.on('connection', async socket => {
         })
     
         // displays new message for everyone in chat box when someone sends a message
-        socket.on('sentMessage',async (messageObject,respond)=> {
+        socket.on('sentMessage',async messageObject=> {
             
             let newMessage = await Message.create({...messageObject,username: currentUser.username})
             await newMessage.setUser( currentUser )
             room.emit('newMessage', newMessage)
         })
 
+        // creates a deck if one is not already made
+        // may have to change how this works when there are multiple rooms
         if(!deckMade){
             createDeck()
         }
@@ -126,6 +146,10 @@ room.on('connection', async socket => {
         // this function should give each play the amount of cards they need
         socket.on('newRound', async(readyConfirm)=>{
             finalDisplay=[]
+            suitHash = {}
+            if(!currentUser.cardCount){
+                currentUser.cardCount = 1
+            }
             currentUser.reveal = false
             if(readyConfirm){
                 currentUser.ready = true
@@ -134,10 +158,20 @@ room.on('connection', async socket => {
             }
             readyCount = roomUsers.filter( user=> user.ready ).length
             if(readyCount >= 2 && readyCount >= roomUsers.length){
-                fetch(`https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=${roomUsers.length*3}`)
+                let roundCardCount = roomUsers.map( user => user.cardCount ).reduce( (total,num) => total + num )
+                await fetch(`https://deckofcardsapi.com/api/deck/${deckID}/shuffle/`)
+                fetch(`https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=${roundCardCount}`)
                 .then(r => r.json())
                 .then(cards=>{
                     cardArray = cards.cards
+                    let suitArray = cardArray.map( card => card.suit )
+                    suitArray.forEach( suit =>{
+                        if(!suitHash[suit]){
+                            suitHash[suit] = 1
+                        }else{
+                            suitHash[suit] = suitHash[suit] + 1
+                        }
+                    })
                     room.emit('allReady', true)
                 })
             }
@@ -146,7 +180,7 @@ room.on('connection', async socket => {
         // when everyone is ready, deals new hand
         socket.on('newHand', ({}, respond)=> {
             if(currentUser.ready){
-                respond( cardArray.splice(0,3) )
+                respond( cardArray.splice(0,currentUser.cardCount) )
                 currentUser.ready = false
 
                 room.emit('whose-turn', roomUsers[turnCount].username )
@@ -155,37 +189,97 @@ room.on('connection', async socket => {
 
         // takes in the guess that a player made and displays to everyone else
         socket.on('guess', async guess => {
+
             let newMove = await Move.create({move: guess.desiredOption, username: guess.username}) 
             
-            room.emit('information', { username: guess.username , guess: guess.desiredOption })
+            room.emit('information', newMove)
             if(roomUsers.length > (turnCount+1)){
                 turnCount++
             }else{
                 turnCount=0
             }
             if( guess.desiredOption === "Bluff" || guess.desiredOption === "Spot On"){
+                finalCall = guess
                 room.emit('whose-turn', "" )
             }else{
+                lastGuess = {...guess}
                 room.emit('whose-turn', roomUsers[turnCount].username )
             }
         })
 
-        socket.on('reveal-cards', cards => {
+        socket.on('reveal-cards', async cards => {
             if(!currentUser.reveal){
                 currentUser.reveal = true
                 finalDisplay.push( ...cards )
             }
             revealCheck = roomUsers.filter( user => user.reveal )
-            if(revealCheck.length === roomUsers.length){
-                room.emit('final-display', finalDisplay)
+            if(revealCheck.length === roomUsers.length && lastGuess){
+                let amount = lastGuess.desiredOption.split(" ")[0]
+                let suit = lastGuess.desiredOption.split(" ")[1]
+                let win = "Unknown"
+                if(finalCall.desiredOption === "Bluff"){
+                    win = (suitHash[suit] < amount)
+                }else{
+                    win = (suitHash[suit] === amount)
+                }
+                if(win){
+                    if(finalCall.desiredOption === "Bluff"){
+                        roomUsers.map(async user =>{
+                            if(user.username === lastGuess.username){
+                                user.cardCount = user.cardCount-1
+                                let cardLossMessage = await Move.create({ move: 'loses a card', username: user.username })
+                                room.emit('information', cardLossMessage)
+                                if(user.cardCount === 0){
+                                    user.stillIn = false
+                                    let newMessage = await Move.create({ move: 'lost and OUT', username: user.username })
+                                    room.emit('information', newMessage)
+                                }
+                            }
+                        })
+                    }else{
+                        roomUsers.map(async user =>{
+                            if(user.username !== finalCall.username){
+                                user.cardCount = user.cardCount-1
+                                let cardLossMessage = await Move.create({ move: 'loses a card', username: user.username })
+                                room.emit('information', cardLossMessage)
+                                if(user.cardCount === 0){
+                                    user.stillIn = false
+                                    let newMessage = await Move.create({ move: 'lost and OUT', username: user.username })
+                                    room.emit('information', newMessage)
+                                }
+                            }
+                        })
+                    }
+                }else{
+                    roomUsers.map(async user =>{
+                        if(user.username === finalCall.username){
+                            user.cardCount = user.cardCount-1
+                            let cardLossMessage = await Move.create({ move: 'loses a card', username: user.username })
+                            room.emit('information', cardLossMessage)
+                            if(user.cardCount === 0){
+                                user.stillIn = false
+                                let newMessage = await Move.create({ move: 'lost and OUT', username: user.username })
+                                room.emit('information', newMessage)
+                            }
+                        }
+                    })
+                }
+
+                // DISPLAYING THAT SOMEONE HAS WON DOES NOT WORK YET
+                if(roomUsers.filter( user => user.stillIn ).length <= 1){
+                    console.log("someone has won")
+                    let newMessage = await Move.create({ move: 'WINNER', username: roomUsers.filter( user => user.stillIn )[0].username })
+                    room.emit('information', newMessage)
+                }
+                room.emit('final-display', { finalDisplay, suitHash } )
             }
         })
 
         // this will remove the user that disonnected from the current user array and let everyone know who is in
         socket.on('disconnect', async ()=> {
 
-            let newMessage = await Message.create({ message: `${currentUser.username} has left the room`, username: "Bot" })
-            room.emit('newMessage', newMessage)
+            let newMessage = await Move.create({ move: 'has left the room', username: currentUser.username })
+            room.emit('information', newMessage)
 
             roomUsers = roomUsers.filter( user => user.id !== currentUser.id)
             if(roomUsers.length === 0){

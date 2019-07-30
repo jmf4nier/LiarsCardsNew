@@ -19,7 +19,8 @@ export class GameRoom extends React.Component{
         newMessage: "",
         username: "",
         inRound: false,
-        finalDisplay: []
+        finalDisplay: [],
+        roundSuits: {}
     }
 
     render(){
@@ -32,16 +33,26 @@ export class GameRoom extends React.Component{
                 <option>Pass</option>
             </select>
             <br/>
-            <input name='guess' type='text' placeholder="If 'Pass', put what your guess is here" style={{ width:'200px' }} />
+            <select name='suit'>
+                <option>HEARTS</option>
+                <option>DIAMONDS</option>
+                <option>SPADES</option>
+                <option>CLUBS</option>
+            </select>
+            <br/>
+            <input type="number" name='amount'/>
             <br/>
             <input type="submit"/>
         </form>
 
-        let showAllCards = <ul>
-            {this.state.finalDisplay.map( card =>{
-                return <li>{card.username}:{card.code}</li>
-            })}
-        </ul>
+        let showAllCards = <div>
+            <ul>
+                {this.state.finalDisplay.map( card => <li key={card.code}>{card.username}:{card.code}</li> )}
+            </ul>
+            <ul>
+                {Object.keys(this.state.roundSuits).map( objKey => <li key={objKey}>{objKey}: {this.state.roundSuits[objKey]}</li>)}
+            </ul>
+        </div>
 
         return(
             <div>
@@ -63,9 +74,9 @@ export class GameRoom extends React.Component{
                 {this.state.userTurn === this.state.username ? callOptions : null}
                 <br />
                 <br />
-                <h1>{this.state.currentInfo.username}- {this.state.currentInfo.guess}</h1>
+                <h1>{this.state.currentInfo.username}- {this.state.currentInfo.move}</h1>
                 {
-                    this.state.currentInfo.guess === "Bluff" || this.state.currentInfo.guess === "Spot On" ?
+                    this.state.currentInfo.move === "Bluff" || this.state.currentInfo.move === "Spot On" ?
                     <button onClick={this.confirmCall}>Show Cards</button> :
                     null
                 }
@@ -116,7 +127,11 @@ export class GameRoom extends React.Component{
         }))
 
         // reveals all cards at the end of a round
-        io.on('final-display', finalDisplay => this.setState({ finalDisplay, inRound: false }))
+        io.on('final-display', finalInfo => this.setState({
+            finalDisplay: finalInfo.finalDisplay,
+            inRound: false,
+            roundSuits: finalInfo.suitHash
+        }))
 
 
 
@@ -128,6 +143,9 @@ export class GameRoom extends React.Component{
         io.on('newMessage', newMessage =>{
             this.setState({ chatMessages: [...this.state.chatMessages, newMessage]})
         })
+
+        //listener to get moves
+        io.emit('moves/index', {}, moves => this.setState({ moves }))
     }
 
     //handles submission of new messages
@@ -156,8 +174,9 @@ export class GameRoom extends React.Component{
         e.preventDefault()
         let desiredOption;
         let call = e.target.call.value
-        let guess = e.target.guess.value
-        call === "Bluff" || call === "Spot On" ? desiredOption = call : desiredOption = "Guess: " + guess
+        let suit = e.target.suit.value
+        let amount = e.target.amount.value
+        call === "Bluff" || call === "Spot On" ? desiredOption = call : desiredOption = `${amount} ${suit}`
         io.emit('guess', {username: this.state.username , desiredOption})
         
     }

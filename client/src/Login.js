@@ -63,7 +63,8 @@ export default class Login extends React.Component{
                         iconPosition='left' 
                         placeholder='Username' 
                         type='text' 
-                        onChange={e=>this.handleOnChange(e.target.name, e.target.value)} />
+                        onChange={e=>this.handleOnChange(e.target.name, e.target.value)}
+                        value={this.state.username} />
                     <Form.Input
                         name='password'
                         onChange={e=>this.handleOnChange(e.target.name, e.target.value)}
