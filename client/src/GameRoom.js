@@ -2,6 +2,7 @@ import React from 'react'
 import socketIO from 'socket.io-client'
 import {Chat} from './Chat'
 import 'semantic-ui-css/semantic.min.css';
+import Move from './Move'
 
 let io;
 
@@ -20,6 +21,7 @@ export class GameRoom extends React.Component{
     }
 
     render(){
+       
 
         let callOptions = <form onSubmit={(e)=>this.callSubmit(e)}>
             <select name='call'>
@@ -36,7 +38,7 @@ export class GameRoom extends React.Component{
         return(
             <div>
                 {this.state.myHand.map( card => <img key={card.code} src={card.image} alt={card.code} />)}
-                <div style={{textAlign:'center',position:'absolute', right:'80px', top: '30px', borderStyle:'solid', borderWidth:'.5px'}}>
+                <div style={{textAlign:'center',position:'absolute', right:'90px', top: '30px', borderStyle:'solid', borderWidth:'.5px'}}>
                     <strong>Players:</strong>
                     <ol style={{ marginRight:'20px'}}>
                         {this.state.currentUsers.map( (user) =>{
@@ -44,6 +46,7 @@ export class GameRoom extends React.Component{
                         })}
                     </ol>
                 </div>
+                {this.state.moves.length > 0? <Move moves={this.state.moves}/> : null}
                 <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>
                 <br/> <br/>
                 {this.state.userTurn === this.state.username ? callOptions : null}
@@ -90,13 +93,16 @@ export class GameRoom extends React.Component{
         io.on('whose-turn', userTurn => this.setState({ userTurn }) )
 
         //displays what people call on their turn (bluff, spot on, or pass with value)
-        io.on('information', currentInfo => this.setState({ currentInfo }))
+        io.on('information', currentInfo => this.setState({ 
+            currentInfo, 
+            moves: [...this.state.moves, currentInfo]
+        }))
 
         //listeners for the chat
         io.emit('messages/index', {}, chatMessages => {
             this.setState({ chatMessages })
         })
-
+        
         io.on('newMessage', newMessage =>{
             this.setState({ chatMessages: [...this.state.chatMessages, newMessage]})
         })
@@ -131,6 +137,7 @@ export class GameRoom extends React.Component{
         let guess = e.target.guess.value
         call === "Bluff" || call === "Spot On" ? desiredOption = call : desiredOption = "Guess: " + guess
         io.emit('guess', {username: this.state.username , desiredOption})
+        
     }
 
     // confirms that user saw the call
