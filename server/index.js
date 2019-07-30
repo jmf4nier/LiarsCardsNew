@@ -148,7 +148,7 @@ room.on('connection', async socket => {
             finalDisplay=[]
             suitHash = {}
             if(!currentUser.cardCount){
-                currentUser.cardCount = 1
+                currentUser.cardCount = 3
             }
             currentUser.reveal = false
             if(readyConfirm){
