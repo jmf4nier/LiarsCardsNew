@@ -73,6 +73,9 @@ let deckMade = false
 let deckID = ""
 let cardArray = []
 
+// used for checking who's turn it is
+let turnCount = 0
+
 
 createDeck = () =>{
     fetch('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1')
@@ -80,23 +83,21 @@ createDeck = () =>{
     .then(deck => deckID=deck.deck_id)
 }
 
-let num = 1
-
 //set's up listeners for the connection
 room.on('connection', async socket => {
 
-    User.findByPk(num).then( currentUser => {
-        // console.log(socket.handshake.query.token)
-        // let token = socket.handshake.query.token
-        // if (token){
-        //     let { id } = jwt.decode(token, 'akdsjfljdfi3' )
-        //     let user = await User.findByPk(id)
-        //     console.log('connected as: ', user)
-        // }
+    let token = socket.handshake.query.token
+    if (token && roomUsers.length < 4){ //include way to make sure people can't get in if only 2 people say they are ready
+        let { id } = jwt.decode(token, 'akdsjfljdfi3' )
+        let currentUser = await User.findByPk(id)
+        socket.emit('username', currentUser.username)
+
+        let userJoinedMessage = await Message.create({ message: `${currentUser.username} has joined the room`, username: "Bot" })
+        room.emit('newMessage', userJoinedMessage)
+        
 
         // loads messages in chat box
         socket.on('messages/index',({},respond)=> {
-            console.log("get messages now")
             Message.findAll({})
             .then(messages => respond(messages))
         })
@@ -112,10 +113,6 @@ room.on('connection', async socket => {
         if(!deckMade){
             createDeck()
         }
-        
-        if(roomUsers.length === 0){
-            readyCount = 0
-        }
         // push actual users into the array and let all users connected know who's in the room
         roomUsers.push(currentUser)
         room.emit('current-users', roomUsers)
@@ -123,47 +120,63 @@ room.on('connection', async socket => {
 
         // this function should give each play the amount of cards they need
         socket.on('newRound', async(readyConfirm)=>{
-            // should be for when each socket is ready rather than just when ready is called multiple times
-            // have a ready check and turn check in database?
             if(readyConfirm){
                 currentUser.ready = true
             }else{
                 currentUser.ready = false
             }
             readyCount = roomUsers.filter( user=> user.ready ).length
-            console.log(readyCount)
-            if(readyCount >= 3 && readyCount >= roomUsers.length){
+            if(readyCount >= 2 && readyCount >= roomUsers.length){
                 fetch(`https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=${roomUsers.length*3}`)
                 .then(r => r.json())
                 .then(cards=>{
                     cardArray = cards.cards
                     room.emit('allReady', true)
-                    readyCount = 0
                 })
             }
         })
 
+        // when everyone is ready, deals new hand
+        socket.on('newHand', ({}, respond)=> {
+            if(currentUser.ready){
+                respond( cardArray.splice(0,3) )
+                currentUser.ready = false
 
-        socket.on('newHand', ()=> {
-            // find a way to make sure people can't just request a new hand whenever
-            socket.emit('dealCards', cardArray.splice(0,3) )
+                room.emit('whose-turn', roomUsers[turnCount].username )
+            }
         })
 
+        // takes in the guess that a player made and displays to everyone else
         socket.on('guess', guess => {
-            room.emit('information', guess)
+            room.emit('information', { username: guess.username , guess: guess.desiredOption })
+            if(roomUsers.length > (turnCount+1)){
+                turnCount++
+            }else{
+                turnCount=0
+            }
+            room.emit('whose-turn', roomUsers[turnCount].username )
         })
 
         // this will remove the user that disonnected from the current user array and let everyone know who is in
-        socket.on('disconnect', ()=> {
+        socket.on('disconnect', async ()=> {
 
-            //buggy about notifying the currect user that left//////////////////////
-            room.emit('newNews', `${currentUser.username} has left the room`)
-            roomUsers.pop()
-            room.emit('current-users', roomUsers)
+            let newMessage = await Message.create({ message: `${currentUser.username} has left the room`, username: "Bot" })
+            room.emit('newMessage', newMessage)
+
+            roomUsers = roomUsers.filter( user => user.id !== currentUser.id)
+            if(roomUsers.length === 0){
+                //clear messages here
+            }else{
+                room.emit('current-users', roomUsers)
+            }
             
         })
 
-    })
+    }else if(roomUsers.length >= 4){
+        console.log('Room is full')
+    }else{
+        console.log('Authentication error')
+    }
 
 })
 
