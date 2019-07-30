@@ -5,7 +5,16 @@ import 'semantic-ui-css/semantic.min.css';
 export default class Signup extends React.Component{
     state={
         username: '',
-        password: ''
+        password: '',
+        badPassword: false,
+        badUsername: false
+    }
+
+    resetErrors = ()=>{
+        this.setState({
+            badPassword: false,
+            badUsername: false
+        })
     }
 
     handleOnChange = (type, value)=>{
@@ -34,7 +43,20 @@ export default class Signup extends React.Component{
             })
         })
         .then(rsp=>rsp.text())
-        .then(console.log)
+        .then(result=>{
+            if(result === 'password too short'){
+                this.setState({
+                    badPassword: true
+                })
+            }else if(result === 'username taken'){
+                this.setState({
+                    badUsername: true
+                })
+            }else{
+                window.localStorage.setItem('token', result)
+                this.props.history.push('/')
+            }
+        })
         .then(this.setState({
             password: '',
             username: ''
@@ -42,9 +64,12 @@ export default class Signup extends React.Component{
     }
 
     render(){
+        let {badPassword, badUsername} = this.state
         return(
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                 <Grid.Column style={{ maxWidth: 450 }}>
+                    {badPassword?<Header as='h2' color='red' textAlign='center'>Password must be at least 5 characters</Header>:null}
+                    {badUsername?<Header as='h2' color='red' textAlign='center'>Username not available</Header>:null}
                     <Header as='h2' color='teal' textAlign='center'>
                         Create your account 
                     </Header>
@@ -55,15 +80,20 @@ export default class Signup extends React.Component{
                             placeholder='Username' 
                             type='text' 
                             name='username' 
-                            onChange={e=>this.handleOnChange(e.target.name, e.target.value)}/>
+                            onChange={e=>{
+                                this.handleOnChange(e.target.name, e.target.value);
+                                this.resetErrors()
+                            }}/>
                         <Form.Input
                             name='password'
                             fluid icon='lock'
                             iconPosition='left'
                             placeholder='Password'
                             type='password'
-                            onChange={e=>this.handleOnChange(e.target.name, e.target.value)}/>
-
+                            onChange={e=>{
+                                this.handleOnChange(e.target.name, e.target.value);
+                                this.resetErrors()
+                            }}/>
                         <Button color='teal' fluid size='large' onClick={this.handleLogin}>
                             Submit
                         </Button>

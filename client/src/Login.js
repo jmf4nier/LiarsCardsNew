@@ -7,7 +7,8 @@ import { Link } from 'react-router-dom'
 export default class Login extends React.Component{
     state={
         username: '',
-        password: ''
+        password: '',
+        error: false
     }
     handleOnChange = (type, value)=>{
         if(type === 'username'){
@@ -37,21 +38,32 @@ export default class Login extends React.Component{
         })
         .then(rsp=>rsp.text())
         .then(result => {
-            window.localStorage.setItem('token', result)
-            this.props.history.push('/game-room')
+            console.log(result)
+            if(result !== 'null'){
+                window.localStorage.setItem('token', result)
+                this.props.history.push('/game-room')
+        }else{
+            this.setState({
+                error: true,
+                password: ''
+            })
+         }
+           
         })
-        .then(this.setState({
-            password: '',
-            username: ''
-        }))
+        // .then(this.setState({
+        //     password: '',
+        //     username: ''
+        // }))
         console.log(window.localStorage.getItem('token'))
     }
     
     render(){
+        let error = this.state.error
         return(
             
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                 <Grid.Column style={{ maxWidth: 450 }}>
+                {error? <Header as='h2' color='red' textAlign='center'>Wrong Username/Password. Try </Header>:null}
                 <Header as='h2' color='teal' textAlign='center'>
                      Log-in to your account 
                 </Header>
@@ -63,8 +75,8 @@ export default class Login extends React.Component{
                         iconPosition='left' 
                         placeholder='Username' 
                         type='text' 
-                        onChange={e=>this.handleOnChange(e.target.name, e.target.value)}
-                        value={this.state.username} />
+                        onChange={e=>this.handleOnChange(e.target.name, e.target.value)} 
+                        value={this.state.username}/>
                     <Form.Input
                         name='password'
                         onChange={e=>this.handleOnChange(e.target.name, e.target.value)}
@@ -72,6 +84,7 @@ export default class Login extends React.Component{
                         iconPosition='left'
                         placeholder='Password'
                         type='password'
+                        value={this.state.password}
                     />
 
                     <Button color='teal' fluid size='large' onClick={this.handleLogin}>
