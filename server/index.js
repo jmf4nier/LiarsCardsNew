@@ -1,6 +1,6 @@
 
 //////////////////////// This section is pretty much the same for every socket app to make later
-const bcrypt = require ('bcrypt');
+
 
 //figure out which ones I don't need since I'm not using http
 //used to route http requests
@@ -41,7 +41,7 @@ const bcrypt = require('bcrypt')
 
 
 // our database models
-const { User, Message } = require("./models")
+const { User, Message, Move } = require("./models")
 
 app.post('/signup', async (req, response)=>{
     const {username, password} = req.body
@@ -151,7 +151,9 @@ room.on('connection', async socket => {
         })
 
         // takes in the guess that a player made and displays to everyone else
-        socket.on('guess', guess => {
+        socket.on('guess', async guess => {
+            let newMove = await Move.create({move: guess.desiredOption, username: guess.username}) 
+            
             room.emit('information', { username: guess.username , guess: guess.desiredOption })
             if(roomUsers.length > (turnCount+1)){
                 turnCount++
