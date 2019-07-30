@@ -64,9 +64,6 @@ const room = io.of('/game-room')
 // used to keep track of who's in the room
 let roomUsers = []
 
-// used to keep track of when everyone is ready to start the next round
-let readyCount = 0
-
 // confirms if a deck has been created for the room or not
 let deckMade = false
 let deckID = ""
@@ -93,12 +90,14 @@ room.on('connection', async socket => {
         //     console.log('connected as: ', user)
         // }
 
+        // loads messages in chat box
         socket.on('messages/index',({},respond)=> {
             console.log("get messages now")
             Message.findAll({})
             .then(messages => respond(messages))
         })
     
+        // displays new message for everyone in chat box when someone sends a message
         socket.on('sentMessage',async (messageObject,respond)=> {
             console.log(messageObject)
             let newMessage = await Message.create({...messageObject,username: currentUser.username})
