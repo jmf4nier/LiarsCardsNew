@@ -113,7 +113,7 @@ export class GameRoom extends React.Component{
 
         // gets token, sends to server
         let token = window.localStorage.getItem('token')
-        io = socketIO('http://10.185.3.22:8080/game-room', {
+        io = socketIO('http://10.185.0.68:8080/game-room', {
             query: { token }
         })
 

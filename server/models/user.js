@@ -8,8 +8,8 @@ const User = sqlDatabase.define( 'user', {
     username: {
         type: Sequelize.STRING
     },
-    wins: {
-        type: Sequelize.INTEGER
+    InRoom:{
+        type: Sequelize.BOOLEAN
     },
     password_digest:{
         type: Sequelize.STRING
