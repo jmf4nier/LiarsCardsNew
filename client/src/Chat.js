@@ -7,9 +7,9 @@ export class Chat extends React.Component{
     render(){
         const today = new Date()
         return (
-            <div id='chat' className="ui comments" style={{ position: "absolute", bottom:'10px', right:'20px' }}>
+            <div id='chat' className="ui comments" >
                 <h3 className="ui dividing header">Chat</h3>
-                <div id='messageBox' className="comment" style={{ height:'300px', overflowY:'auto' }}>
+                <div id='messageBox' className="comment" style={{ height:'235px', overflowY:'auto' }}>
                     <div className="content">
                         <div className="text">
                              {this.props.chatMessages.map( (eachMessage) =>

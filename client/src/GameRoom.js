@@ -31,32 +31,32 @@ export class GameRoom extends React.Component{
        
 
         let callOptions = 
-        <form id='options' onSubmit={(e)=>this.callSubmit(e)}>
-            {this.state.choiceConfirmation==="Invalid" ? <p>"Pick a different suit or higher number if you want to pass"</p> : null}
-            <div id='move-dropdown' className="input-group mb-3">
-                {this.state.firstTurn?<select name='call' className="custom-select" id="inputGroupSelect02">
-                    <option>Pass</option>
-                </select>:<select name='call' className="custom-select" id="inputGroupSelect02">
-                    <option>Pass</option>
-                    <option>Bluff</option>
-                    <option>Spot On</option>
-                </select>}
-            </div>    
-            <br/>
-            <div id='suit-dropdown' className="input-group mb-3">
-                <select name='suit' className="custom-select" id="inputGroupSelect02">
-                    <option>HEARTS</option>
-                    <option>DIAMONDS</option>
-                    <option>SPADES</option>
-                    <option>CLUBS</option>
-                </select>
-            </div>
-            <br/>
-            <input type="range" min="1" max="20" defaultValue={this.state.sliderValue} className="slider" id="myRange"  onChange={e=>this.handleSlider(e.target.value)}/>
-            <p id='slider-value'><strong>{this.state.sliderValue}</strong></p>
-            <br/>
-            <input id='move-submit' className='btn btn-primary' type="submit"/>
-        </form>
+            <form  onSubmit={(e)=>this.callSubmit(e)}>
+                {this.state.choiceConfirmation==="Invalid" ? <p>"Pick a different suit or higher number if you want to pass"</p> : null}
+                <div id='move-dropdown' className="input-group mb-3">
+                    {this.state.firstTurn?<select name='call' className="custom-select" id="inputGroupSelect02">
+                        <option>Pass</option>
+                    </select>:<select name='call' className="custom-select" id="inputGroupSelect02">
+                        <option>Pass</option>
+                        <option>Bluff</option>
+                        <option>Spot On</option>
+                    </select>}
+                </div>    
+                <br/>
+                <div id='suit-dropdown' className="input-group mb-3">
+                    <select name='suit' className="custom-select" id="inputGroupSelect02">
+                        <option>HEARTS</option>
+                        <option>DIAMONDS</option>
+                        <option>SPADES</option>
+                        <option>CLUBS</option>
+                    </select>
+                </div>
+                <br/>
+                <input type="range" min="1" max="20" defaultValue={this.state.sliderValue} className="slider" id="myRange"  onChange={e=>this.handleSlider(e.target.value)}/>
+                <p id='slider-value'><strong>{this.state.sliderValue}</strong></p>
+                <br/>
+                <input id='move-submit' className='btn btn-primary' type="submit"/>
+            </form>
 
         let showAllCards = <div>
             <ul>
@@ -70,11 +70,16 @@ export class GameRoom extends React.Component{
         return(
             <div>
                <Header user={this.state.username}/>
-               <div id='cards'>
-                    {this.state.myHand.map( card => {
-                        return <img id='card' key={card.code} src={card.image} alt={card.code} height='250px'width='200px' />
-                    })}
-                </div>
+               <div>
+                    <div id='cards'>
+                        {this.state.myHand.map( card => {
+                            return <img id='card' key={card.code} src={card.image} alt={card.code} height='250px'width='200px' />
+                        })}
+                    </div>
+                    <div id='options'> 
+                        {this.state.userTurn === this.state.username ? callOptions : null}
+                    </div>
+               </div>
                 <div id='users'>
                     <strong>Players:</strong>
                     <ol id='user-list'>
@@ -88,11 +93,10 @@ export class GameRoom extends React.Component{
                     <button id='not-ready-btn' onClick={this.readySubmit}>Ready?</button>:
                     <button id='ready-btn' onClick={this.readySubmit}>Ready!</button>:null
                 }
-                <br/> <br/>
-                {this.state.userTurn === this.state.username ? callOptions : null}
-                <br />
-                <br />
-                <h1>{this.state.currentInfo.username}- {this.state.currentInfo.move}</h1>
+                <div id='move-display'>
+                    <p><strong>{this.state.currentInfo.username}- </strong>{this.state.currentInfo.move}</p>
+
+                </div>
                 {
                     this.state.currentInfo.move === "Bluff" || this.state.currentInfo.move === "Spot On" ?
                     <button onClick={this.confirmCall}>Show Cards</button> :
@@ -113,7 +117,7 @@ export class GameRoom extends React.Component{
 
         // gets token, sends to server
         let token = window.localStorage.getItem('token')
-        io = socketIO('http://10.185.3.22:8080/game-room', {
+        io = socketIO('http://localhost:8080/game-room', {
             query: { token }
         })
 

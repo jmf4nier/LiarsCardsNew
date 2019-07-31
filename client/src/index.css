@@ -15,34 +15,35 @@ body {
   background-attachment:fixed;
 }
 #move-dropdown{
-  width: 15%;
+  margin:.5em;
+  width: 100%;
   background-color: rgb(206, 214, 214)
 }
 #suit-dropdown{
-  width: 15%;
+  margin:.5em;
+  width: 100%;
   background-color: rgb(206, 214, 214)
 
 }
 #move-submit{
-  width: 10%;
-  margin-left:2em
+  margin: 0;
+  width: 100%;
+  
 }
 #slider-value{
   font-size: 3em;
+  margin: 0;
 }
 #not-ready-btn{
-  padding: 0em;
-  margin: auto;
-  position: relative;
-  top: 5em;
-  left: 25%; 
   color: white;
   font-size: 2em;
-  font-weight: 800;
-  width: 20em;
-  height: 10em;
-  border-radius: 24px;
-  background-color: red
+  position: absolute;
+  bottom:1em;
+  left:1em;
+  width: 8em;
+  height: 4em;
+  border-radius: 25px;
+  background-color: rgb(184, 17, 17);
 }
 #nav{
   padding:2em;
@@ -55,23 +56,37 @@ body {
   left:1em;
   width: 8em;
   height: 4em;
+  border-radius: 25px;
   background-color: green;
 }
 #card{
-  padding: 1em;
+  display: inline-block;
+  padding: .5em;
+}
+#top-level{
+  
 }
 #cards{
-  position: relative; 
-  left:25%;
-  right: 20%; 
-  top:15px
+  
+  position: absolute; 
+  margin: 0;
+  left: 20%; 
+  top:12%
+}
+#options{
+  margin:.5em;
+  position: absolute;
+  top:12%;
+  left: 2em;
+  width: 10%;
+  
 }
 #users{
   border-radius: 12px;
   background-color: rgb(206, 214, 214);
   text-align:center;
   position:absolute;
-  top: 90px;
+  top: 12%;
   border-style:solid;
   border-width:.25px;
   right: 90px;
@@ -79,13 +94,26 @@ body {
 #user-list{
   margin-right: 20px
 }
+#move-display{
+  font-size: 30px;
+  padding: .5em;
+  background-color: beige;
+  border-radius: 12px;
+  position: absolute;
+  bottom: 1.5em;
+  right: 40%;
+
+}
 #chat{
+  position: absolute;
+  right:20px;
+  bottom:10px; 
   text-align: center;
   background-color: rgba(207, 224, 224, 0.267);
   border-style: solid;
   border-width: .25px;
   border-radius: 12px;
-  margin-right: 1.5em;
+  margin-right: 40px;
 }
 #messageBox{
   background-color: rgb(206, 214, 214);
@@ -95,16 +123,14 @@ body {
   background-color: rgb(206, 214, 214);
   
   position:absolute;
-  top: 23%;
+  top: 30%;
   border-style:solid;
   border-width:.25px;
   height:150px;
   overflow-Y:auto;
   right:30px;
 }
-#options{
-  margin-left: 20px
-}
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
@@ -114,7 +140,7 @@ code {
   margin-top: 1em;
   margin-bottom: 1em;
   -webkit-appearance: none;
-  width: 15%;
+  width: 100%;
   height: 15px;
   border-radius: 5px;   
   background: #6f7cf5;
