@@ -8,7 +8,8 @@ export default class Login extends React.Component{
     state={
         username: '',
         password: '',
-        error: false
+        error: false,
+        errorMessage: ""
     }
     handleOnChange = (type, value)=>{
         if(type === 'username'){
@@ -38,22 +39,23 @@ export default class Login extends React.Component{
         })
         .then(rsp=>rsp.text())
         .then(result => {
-            console.log(result)
-            if(result !== 'null'){
+            if(result === 'null'){
+                this.setState({
+                    error: true,
+                    errorMessage: "Wrong Username/Password",
+                    password: ''
+                })
+            }else if(result === "Already logged in"){
+                this.setState({
+                    error: true,
+                    errorMessage: "That user is already in a room",
+                    password: ''
+                })
+            }else{
                 window.localStorage.setItem('token', result)
                 this.props.history.push('/game-room')
-        }else{
-            this.setState({
-                error: true,
-                password: ''
-            })
-         }
-           
+            }
         })
-        // .then(this.setState({
-        //     password: '',
-        //     username: ''
-        // }))
         console.log(window.localStorage.getItem('token'))
     }
     
@@ -63,7 +65,7 @@ export default class Login extends React.Component{
             
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                 <Grid.Column style={{ maxWidth: 450 }}>
-                {error? <Header as='h2' color='red' textAlign='center'>Wrong Username/Password. Try </Header>:null}
+                {error? <Header as='h2' color='red' textAlign='center'>{this.state.errorMessage}</Header>:null}
                 <Header as='h2' color='teal' textAlign='center'>
                      Log-in to your account 
                 </Header>

@@ -1,6 +1,4 @@
 import React from 'react'
-// const io = socketIO('http://localhost:8080?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MX0.nl8QveWCtkui9auZTnQY4GKWBgW1fHdooy0lzuJqSG8')
-
 
 export class Chat extends React.Component{
       
