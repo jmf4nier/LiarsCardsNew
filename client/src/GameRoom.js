@@ -3,6 +3,7 @@ import socketIO from 'socket.io-client'
 import {Chat} from './Chat'
 import 'semantic-ui-css/semantic.min.css';
 import Move from './Move'
+import Header from './Header'
 
 let io;
 
@@ -46,6 +47,7 @@ export class GameRoom extends React.Component{
 
         return(
             <div>
+               <Header/>
                <div id='cards'>
                     {this.state.myHand.map( card => {
                         return <img id='card' key={card.code} src={card.image} alt={card.code} height='250px'width='200px' />
@@ -61,9 +63,9 @@ export class GameRoom extends React.Component{
                 </div>
                 {this.state.moves.length > 0? <Move moves={this.state.moves}/>: null}
                 <br/>
-                {!this.state.inRound ?
-                    <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>:
-                    null
+                {!this.state.inRound?!this.state.ready?
+                    <button id='not-ready-btn' onClick={this.readySubmit}>Ready?</button>:
+                    <button id='ready-btn' onClick={this.readySubmit}>Ready!</button>:null
                 }
                 <br/> <br/>
                 {this.state.userTurn === this.state.username ? callOptions : null}
