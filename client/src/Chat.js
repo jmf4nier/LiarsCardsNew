@@ -25,7 +25,6 @@ export class Chat extends React.Component{
                 </div>
                 <form className="ui reply form" onSubmit={(e)=> this.props.handleSubmit(e)}>
                     <div className="field" >
-                        {/* have text box not give autofill options */}
                         <input autoComplete='off' name="newMessage"  type='text' value={this.props.newMessage} onChange={(e)=>this.props.handleChange(e)}></input>
                     </div>
                     <input type="Submit"  className="ui blue button"/>
