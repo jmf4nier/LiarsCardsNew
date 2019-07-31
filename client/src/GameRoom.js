@@ -20,7 +20,8 @@ export class GameRoom extends React.Component{
         username: "",
         inRound: false,
         finalDisplay: [],
-        roundSuits: {}
+        roundSuits: {},
+        choiceConfirmation: ""
     }
 
     render(){
@@ -28,10 +29,11 @@ export class GameRoom extends React.Component{
 
         let callOptions = 
         <form id='options' onSubmit={(e)=>this.callSubmit(e)}>
+            {this.state.choiceConfirmation==="Invalid" ? <p>"Pick a different suit or higher number if you want to pass"</p> : null}
             <select name='call'>
-                <option>Bluff</option>
-                <option>Spot On</option>
                 <option>Pass</option>
+                <option>Bluff</option>
+                <option>Spot On</option> 
             </select>
             <br/>
             <select name='suit'>
@@ -100,7 +102,7 @@ export class GameRoom extends React.Component{
 
         // gets token, sends to server
         let token = window.localStorage.getItem('token')
-        io = socketIO('http://localhost:8080/game-room', {
+        io = socketIO('http://10.185.3.22:8080/game-room', {
             query: { token }
         })
 
@@ -117,7 +119,11 @@ export class GameRoom extends React.Component{
             if(readyCheck){
                 this.setState({ inRound: true, finalDisplay: [], currentInfo: "" })
                 io.emit('newHand', {}, myHand =>{
-                    this.setState({ myHand, ready: false })
+                    if(myHand !== "NO"){
+                        this.setState({ myHand, ready: false })
+                    }else{
+                        this.setState({ myHand: [] })
+                    }
                 })
             }
         })
@@ -182,7 +188,9 @@ export class GameRoom extends React.Component{
         let suit = e.target.suit.value
         let amount = e.target.amount.value
         call === "Bluff" || call === "Spot On" ? desiredOption = call : desiredOption = `${amount} ${suit}`
-        io.emit('guess', {username: this.state.username , desiredOption})
+        io.emit('guess', {username: this.state.username , desiredOption}, response => {
+            this.setState({ choiceConfirmation: response })
+        })
         
     }
 

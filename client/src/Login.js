@@ -24,7 +24,7 @@ export default class Login extends React.Component{
 
     handleLogin = ()=>{
         
-        fetch('http://localhost:8080/login', {
+        fetch('http://10.185.3.22:8080/login', {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json',
