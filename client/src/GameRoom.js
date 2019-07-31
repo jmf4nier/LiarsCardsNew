@@ -60,11 +60,11 @@ export class GameRoom extends React.Component{
 
         let showAllCards = 
             <div>
-                <ul>
-                    {this.state.finalDisplay.map( card => <li key={card.code}>{card.username}:{card.code}</li> )}
-                </ul>
-                <ul>
-                    {Object.keys(this.state.roundSuits).map( objKey => <li key={objKey}>{objKey}: {this.state.roundSuits[objKey]}</li>)}
+                <div>
+                    {this.state.finalDisplay.map( card => <img className='final-cards' src={card.image}/> )}
+                </div>
+                <ul id ='final-suit-list'>
+                    {Object.keys(this.state.roundSuits).map( objKey => <strong><li key={objKey}>{objKey}: {this.state.roundSuits[objKey]}</li></strong>)}
                 </ul>
             </div>
 
@@ -74,7 +74,7 @@ export class GameRoom extends React.Component{
                <div>
                     <div id='cards'>
                         {this.state.myHand.map( card => {
-                            return <img id='card' key={card.code} src={card.image} alt={card.code} height='250px'width='200px' />
+                            return <img id='card' key={card.code} src={card.image} alt={card.code} height='200px'width='150px' />
                         })}
                     </div>
                     <div id='options'> 
@@ -98,16 +98,12 @@ export class GameRoom extends React.Component{
                     <p><strong>{this.state.currentInfo.username}- </strong>{this.state.currentInfo.move}</p>
 
                 </div>
-                {
-                    this.state.currentInfo.move === "Bluff" || this.state.currentInfo.move === "Spot On" ?
-                    <button className='btn btn-success' onClick={this.confirmCall}>Show Cards</button> :
-                    null
-                }
-                {
-                    this.state.finalDisplay.length > 0 ?
-                    showAllCards :
-                    null
-                }
+                <div id='show-cards-btn-div'>
+                    {this.state.currentInfo.move === "Bluff" || this.state.currentInfo.move === "Spot On" ?<button id='show-cards-btn' className='btn btn-success' onClick={this.confirmCall}>Show Cards</button> :null}
+                </div>
+                <div id='show-cards-div'>
+                    {this.state.finalDisplay.length > 0 ?showAllCards :null}
+                </div>
                 <Move moves={this.state.moves} />
                 <Chat chatMessages={this.state.chatMessages} newMessage={this.state.newMessage} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
             </div>

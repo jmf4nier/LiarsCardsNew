@@ -174,14 +174,6 @@ room.on('connection', async socket => {
                 .then(r => r.json())
                 .then(cards=>{
                     cardArray = cards.cards
-                    let suitArray = cardArray.map( card => card.suit )
-                    suitArray.forEach( suit =>{
-                        if(!suitHash[suit]){
-                            suitHash[suit] = 1
-                        }else{
-                            suitHash[suit] = suitHash[suit] + 1
-                        }
-                    })
                     room.emit('allReady', true)
                 })
             }
@@ -198,11 +190,11 @@ room.on('connection', async socket => {
         })
 
         // takes in the guess that a player made and displays to everyone else
-        socket.on('guess', async guess => {
+        socket.on('guess', async (guess,respond) => {
 
             let finalTurnChecker
 
-            if( guess.desiredOption !== "Bluff" || guess.desiredOption !== "Spot On"){
+            if( guess.desiredOption !== "Bluff" && guess.desiredOption !== "Spot On"){
                 let numCheck = parseInt(lastGuess.desiredOption.charAt(0)) < parseInt(guess.desiredOption.charAt(0))
                 let equalCheck = parseInt(lastGuess.desiredOption.charAt(0)) === parseInt(guess.desiredOption.charAt(0))
 
