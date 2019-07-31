@@ -29,7 +29,7 @@ export class GameRoom extends React.Component{
 
     render(){
        
-
+        console.log(this.state.finalDisplay)
         let callOptions = 
             <form  onSubmit={(e)=>this.callSubmit(e)}>
                 {this.state.choiceConfirmation==="Invalid" ? <p>"Pick a different suit or higher number if you want to pass"</p> : null}
@@ -58,14 +58,15 @@ export class GameRoom extends React.Component{
                 <input id='move-submit' className='btn btn-primary' type="submit"/>
             </form>
 
-        let showAllCards = <div>
-            <ul>
-                {this.state.finalDisplay.map( card => <li key={card.code}>{card.username}:{card.code}</li> )}
-            </ul>
-            <ul>
-                {Object.keys(this.state.roundSuits).map( objKey => <li key={objKey}>{objKey}: {this.state.roundSuits[objKey]}</li>)}
-            </ul>
-        </div>
+        let showAllCards = 
+            <div>
+                <ul>
+                    {this.state.finalDisplay.map( card => <li key={card.code}>{card.username}:{card.code}</li> )}
+                </ul>
+                <ul>
+                    {Object.keys(this.state.roundSuits).map( objKey => <li key={objKey}>{objKey}: {this.state.roundSuits[objKey]}</li>)}
+                </ul>
+            </div>
 
         return(
             <div>
@@ -99,7 +100,7 @@ export class GameRoom extends React.Component{
                 </div>
                 {
                     this.state.currentInfo.move === "Bluff" || this.state.currentInfo.move === "Spot On" ?
-                    <button onClick={this.confirmCall}>Show Cards</button> :
+                    <button className='btn btn-success' onClick={this.confirmCall}>Show Cards</button> :
                     null
                 }
                 {
