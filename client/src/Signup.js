@@ -30,7 +30,7 @@ export default class Signup extends React.Component{
     }
     
     handleLogin = ()=>{
-        fetch('http://localhost:8080/signup', {
+        fetch('http://10.185.3.22:8080/signup', {
             method: 'POST',
             
             headers: {
