@@ -102,7 +102,7 @@ createDeck = () =>{
 
 //set's up listeners for the connection
 room.on('connection', async socket => {
-
+    
     let token = socket.handshake.query.token
     if (token && roomUsers.length < 4){ //include way to make sure people can't get in if only 2 people say they are ready
         let { id } = jwt.decode(token, 'akdsjfljdfi3' )
