@@ -161,11 +161,13 @@ room.on('connection', async socket => {
             currentUser.reveal = false
             if(readyConfirm){
                 currentUser.ready = true
+                readyCount = roomUsers.filter( user=> user.ready ).length
             }else{
                 currentUser.ready = false
+                readyCount = roomUsers.filter( user=> user.ready ).length
             }
-            readyCount = roomUsers.filter( user=> user.ready ).length
             if(readyCount >= 2 && readyCount >= roomUsers.length){
+
                 let newRoundMessage = await Move.create({ move: 'Cards have been dealt', username: "Bot" })
                 room.emit('information', newRoundMessage)
                 let roundCardCount = roomUsers.map( user => user.cardCount ).reduce( (total,num) => total + num )
@@ -219,8 +221,9 @@ room.on('connection', async socket => {
             if(finalTurnChecker){
 
                 let newMove = await Move.create({move: guess.desiredOption, username: guess.username}) 
-                respond("Choice Accepted")
                 room.emit('information', newMove)
+
+                respond("Choice Accepted")
 
                 if(roomUsers.length > (turnCount+1)){
                     turnCount++
@@ -248,8 +251,8 @@ room.on('connection', async socket => {
             if(!currentUser.reveal){
                 currentUser.reveal = true
                 finalDisplay.push( ...cards )
+                revealCheck = roomUsers.filter( user => user.reveal )
             }
-            revealCheck = roomUsers.filter( user => user.reveal )
             if(revealCheck.length === roomUsers.length && lastGuess){
                 let suitArray = finalDisplay.map( card => card.suit )
                 suitArray.forEach( suit => suitHash[suit] = suitHash[suit] + 1 )

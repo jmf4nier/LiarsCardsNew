@@ -85,7 +85,7 @@ export class GameRoom extends React.Component{
                     <strong>Players:</strong>
                     <ol id='user-list'>
                         {this.state.currentUsers.map( (user) =>{
-                            return <li key={user.id} >{user.username}</li>
+                            return <li key={user.id} >{user.username}{this.state.userTurn===user.username ? " X" : null}</li>
                         })}
                     </ol>
                 </div>
