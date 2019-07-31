@@ -32,7 +32,7 @@ export class GameRoom extends React.Component{
         console.log(this.state.finalDisplay)
         let callOptions = 
             <form  onSubmit={(e)=>this.callSubmit(e)}>
-                {this.state.choiceConfirmation==="Invalid" ? <p>"Pick a different suit or higher number if you want to pass"</p> : null}
+                {this.state.choiceConfirmation==="Invalid" ? <p style={{color:'red',fontWeight:'900'}}>"Pick a different suit or higher number if you want to pass"</p> : null}
                 <div id='move-dropdown' className="input-group mb-3">
                     {this.state.firstTurn?<select name='call' className="custom-select" id="inputGroupSelect02">
                         <option>Pass</option>
