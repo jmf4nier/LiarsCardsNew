@@ -150,6 +150,8 @@ room.on('connection', async socket => {
         socket.on('newRound', async(readyConfirm)=>{
             finalDisplay=[]
             suitHash = {}
+            let newRoundMessage = await Move.create({ move: 'Cards have been dealt', username: "Bot" })
+            room.emit('information', newRoundMessage)
             if(!currentUser.cardCount){
                 currentUser.cardCount = 3
             }

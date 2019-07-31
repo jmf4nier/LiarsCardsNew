@@ -3,6 +3,7 @@ import socketIO from 'socket.io-client'
 import {Chat} from './Chat'
 import 'semantic-ui-css/semantic.min.css';
 import Move from './Move'
+import Header from './Header'
 
 let io;
 
@@ -20,7 +21,9 @@ export class GameRoom extends React.Component{
         username: "",
         inRound: false,
         finalDisplay: [],
-        roundSuits: {}
+        roundSuits: {},
+        sliderValue: 1,
+        firstTurn: false
     }
 
     render(){
@@ -28,22 +31,29 @@ export class GameRoom extends React.Component{
 
         let callOptions = 
         <form id='options' onSubmit={(e)=>this.callSubmit(e)}>
-            <select name='call'>
-                <option>Bluff</option>
-                <option>Spot On</option>
-                <option>Pass</option>
-            </select>
+            <div id='move-dropdown' className="input-group mb-3">
+                {this.state.firstTurn?<select name='call' className="custom-select" id="inputGroupSelect02">
+                    <option>Pass</option>
+                </select>:<select name='call' className="custom-select" id="inputGroupSelect02">
+                    <option>Pass</option>
+                    <option>Bluff</option>
+                    <option>Spot On</option>
+                </select>}
+            </div>    
             <br/>
-            <select name='suit'>
-                <option>HEARTS</option>
-                <option>DIAMONDS</option>
-                <option>SPADES</option>
-                <option>CLUBS</option>
-            </select>
+            <div id='suit-dropdown' className="input-group mb-3">
+                <select name='suit' className="custom-select" id="inputGroupSelect02">
+                    <option>HEARTS</option>
+                    <option>DIAMONDS</option>
+                    <option>SPADES</option>
+                    <option>CLUBS</option>
+                </select>
+            </div>
             <br/>
-            <input type="number" name='amount'/>
+            <input type="range" min="1" max="20" defaultValue={this.state.sliderValue} className="slider" id="myRange"  onChange={e=>this.handleSlider(e.target.value)}/>
+            <p id='slider-value'><strong>{this.state.sliderValue}</strong></p>
             <br/>
-            <input type="submit"/>
+            <input id='move-submit' className='btn btn-primary' type="submit"/>
         </form>
 
         let showAllCards = <div>
@@ -57,6 +67,7 @@ export class GameRoom extends React.Component{
 
         return(
             <div>
+               <Header user={this.state.username}/>
                <div id='cards'>
                     {this.state.myHand.map( card => {
                         return <img id='card' key={card.code} src={card.image} alt={card.code} height='250px'width='200px' />
@@ -70,11 +81,10 @@ export class GameRoom extends React.Component{
                         })}
                     </ol>
                 </div>
-                {this.state.moves.length > 0? <Move moves={this.state.moves}/>: null}
                 <br/>
-                {!this.state.inRound ?
-                    <button onClick={this.readySubmit}>Ready: {this.state.ready ? "True" : "False"}</button>:
-                    null
+                {!this.state.inRound?!this.state.ready?
+                    <button id='not-ready-btn' onClick={this.readySubmit}>Ready?</button>:
+                    <button id='ready-btn' onClick={this.readySubmit}>Ready!</button>:null
                 }
                 <br/> <br/>
                 {this.state.userTurn === this.state.username ? callOptions : null}
@@ -91,7 +101,7 @@ export class GameRoom extends React.Component{
                     showAllCards :
                     null
                 }
-                {this.state.moves.length > 0 ? <Move moves={this.state.moves} /> : null }
+                <Move moves={this.state.moves} />
                 <Chat chatMessages={this.state.chatMessages} newMessage={this.state.newMessage} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
             </div>
         )
@@ -118,7 +128,10 @@ export class GameRoom extends React.Component{
             if(readyCheck){
                 this.setState({ inRound: true, finalDisplay: [], currentInfo: "" })
                 io.emit('newHand', {}, myHand =>{
-                    this.setState({ myHand, ready: false })
+                    this.setState({ 
+                        myHand, 
+                        ready: false 
+                    })
                 })
             }
         })
@@ -127,10 +140,15 @@ export class GameRoom extends React.Component{
         io.on('whose-turn', userTurn => this.setState({ userTurn }) )
 
         //displays what people call on their turn (bluff, spot on, or pass with value)
-        io.on('information', currentInfo => this.setState({ 
+        io.on('information', currentInfo => {
+            if(currentInfo.move === "Cards have been dealt"){
+                this.setState({firstTurn: true})
+            }else{this.setState({firstTurn: false})}
+            this.setState({ 
             currentInfo, 
             moves: [...this.state.moves, currentInfo]
-        }))
+            })
+        })
 
         // reveals all cards at the end of a round
         io.on('final-display', finalInfo => this.setState({
@@ -181,7 +199,7 @@ export class GameRoom extends React.Component{
         let desiredOption;
         let call = e.target.call.value
         let suit = e.target.suit.value
-        let amount = e.target.amount.value
+        let amount = this.state.sliderValue
         call === "Bluff" || call === "Spot On" ? desiredOption = call : desiredOption = `${amount} ${suit}`
         io.emit('guess', {username: this.state.username , desiredOption})
         
@@ -191,5 +209,10 @@ export class GameRoom extends React.Component{
     confirmCall = () => {
         let cards = this.state.myHand.map( card => ( {...card, username: this.state.username} ))
         io.emit('reveal-cards', cards)
+    }
+    handleSlider = (value)=>{
+        this.setState({
+            sliderValue: value
+        })
     }
 }

@@ -7,7 +7,7 @@ export class Chat extends React.Component{
     render(){
         const today = new Date()
         return (
-            <div className="ui comments" style={{ position: "absolute", bottom:'10px', right:'20px' }}>
+            <div id='chat' className="ui comments" style={{ position: "absolute", bottom:'10px', right:'20px' }}>
                 <h3 className="ui dividing header">Chat</h3>
                 <div id='messageBox' className="comment" style={{ height:'300px', overflowY:'auto' }}>
                     <div className="content">
@@ -19,13 +19,13 @@ export class Chat extends React.Component{
                                 )}
                         </div>
                         <div className="metadata">
-                            <span className="date"> {today.getHours() + ":" + today.getMinutes() + ":"}</span>
+                            <span className="date"> {today.getHours() + ":" + today.getMinutes()}</span>
                         </div>
                     </div>
                 </div>
                 <form className="ui reply form" onSubmit={(e)=> this.props.handleSubmit(e)}>
                     <div className="field" >
-                        <input name="newMessage"  type='text' autoComplete='off' value={this.props.newMessage} onChange={(e)=>this.props.handleChange(e)}></input>
+                        <input autoComplete='off' name="newMessage"  type='text' value={this.props.newMessage} onChange={(e)=>this.props.handleChange(e)}></input>
                     </div>
                     <input type="Submit"  className="ui blue button"/>
                 </form>
