@@ -14,9 +14,7 @@ export default class Move extends React.Component{
             <div id='moveDiv'>
                 <strong>Moves:</strong>
                 <ol style={{ marginRight:'20px'}}>
-                    {moves.map( (move) =>{
-                        return <li key={move.id} ><strong>{move.username}</strong>:{' ' + move.move}</li>
-                    })}
+                    {moves.map( (move) => <li key={move.id} ><strong>{move.username}</strong>:{' ' + move.move}</li> )}
                 </ol>
             </div>
         )
