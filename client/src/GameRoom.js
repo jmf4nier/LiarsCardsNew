@@ -32,7 +32,7 @@ export class GameRoom extends React.Component{
         console.log(this.state.finalDisplay)
         let callOptions = 
             <form  onSubmit={(e)=>this.callSubmit(e)}>
-                {this.state.choiceConfirmation==="Invalid" ? <p>"Pick a different suit or higher number if you want to pass"</p> : null}
+                {this.state.choiceConfirmation==="Invalid" ? <p style={{ color:'red', fontWeight:'800' }}>"Pick a different suit or higher number if you want to pass"</p> : null}
                 <div id='move-dropdown' className="input-group mb-3">
                     {this.state.firstTurn?<select name='call' className="custom-select" id="inputGroupSelect02">
                         <option>Pass</option>
@@ -61,7 +61,7 @@ export class GameRoom extends React.Component{
         let showAllCards = 
             <div>
                 <div>
-                    {this.state.finalDisplay.map( card => <img className='final-cards' src={card.image}/> )}
+                    {this.state.finalDisplay.map( card => <img key={card.code} className='final-cards' src={card.image} alt={card.code} /> )}
                 </div>
                 <ul id ='final-suit-list'>
                     {Object.keys(this.state.roundSuits).map( objKey => <strong><li key={objKey}>{objKey}: {this.state.roundSuits[objKey]}</li></strong>)}
@@ -95,8 +95,7 @@ export class GameRoom extends React.Component{
                     <button id='ready-btn' onClick={this.readySubmit}>Ready!</button>:null
                 }
                 <div id='move-display'>
-                    <p><strong>{this.state.currentInfo.username}- </strong>{this.state.currentInfo.move}</p>
-
+                    <p><strong>{this.state.currentInfo.username} </strong>{this.state.currentInfo.move}</p>
                 </div>
                 <div id='show-cards-btn-div'>
                     {this.state.currentInfo.move === "Bluff" || this.state.currentInfo.move === "Spot On" ?<button id='show-cards-btn' className='btn btn-success' onClick={this.confirmCall}>Show Cards</button> :null}
@@ -114,7 +113,7 @@ export class GameRoom extends React.Component{
 
         // gets token, sends to server
         let token = window.localStorage.getItem('token')
-        io = socketIO('http://localhost:8080/game-room', {
+        io = socketIO('http://10.185.0.68:8080/game-room', {
             query: { token }
         })
 

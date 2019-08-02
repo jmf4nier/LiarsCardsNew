@@ -28,7 +28,7 @@ const jwt = require ('jwt-simple');
 app.use(bodyParser.json());
 
 // tells app to use cors
-app.use(cors({ origin: 'http://localhost:3000', credentials: true}))
+app.use(cors({ origin: 'http://10.185.0.68:3000', credentials: true}))
 
 
 

@@ -69,14 +69,14 @@ body {
   display: inline-block;
   padding: .5em;
 }
-#top-level{
+/* #top-level{
   
-}
+} */
 #cards{
   
   position: absolute; 
   margin: 0;
-  left: 30%; 
+  left: 35%; 
   top:12%
 }
 .final-cards{
