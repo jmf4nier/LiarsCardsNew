@@ -12,7 +12,7 @@
     "pryjs": "^1.0.3",
     "sequelize": "^5.10.2",
     "socket.io": "^2.2.0",
-    "sqlite3": "^4.0.9"
+    "sqlite3": "^4.1.0"
   },
   "devDependencies": {},
   "scripts": {

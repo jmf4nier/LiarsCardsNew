@@ -9,7 +9,7 @@ export default class Header extends React.Component{
         
         return(
             <nav id='nav' className="navbar navbar-dark bg-dark">
-                <h1 id='username-header'>Jason</h1>
+                <h1 id='username-header'>{this.props.user}</h1>
                 {/* <span className="navbar-brand mb-0 h1">{this.props.user}</span> */}
             </nav> 
         )
